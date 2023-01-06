@@ -1,13 +1,15 @@
-﻿@{
+﻿@inject IHttpContextAccessor _httpContextAccessor
+@{
     ViewData["Title"] = "Sign In";
     Layout = "~/Views/Shared/_UnAuthorizedLayout.cshtml";
+
 }
 
 <div class="login-box">
     <!-- /.login-logo -->
     <div class="card card-outline card-navy">
         <div class="card-header text-center">
-            <a href="~/index2.html" class="h1"><b>MyPharmacy</b>ERP</a>
+            <a href="#" class="h1"><b>MyPharmacy</b>ERP</a>
         </div>
         <div class="card-body">
             <p class="login-box-msg">@ViewBag.Title</p>
@@ -55,3 +57,16 @@
     <!-- /.card -->
 </div>
 <!-- /.login-box -->
+
+<span class="display:none;" id="messageType">@TempData["MessageType"]</span>
+<span class="display:none;" id="message">@TempData["Message"]</span>
+
+@section Scripts{
+    <script>
+        $(function () {
+            var messageType = document.getElementById("messageType").innerText;
+            var message = document.getElementById("message").innerText;
+            alert(messageType + " - " + message);
+        });
+    </script>
+}

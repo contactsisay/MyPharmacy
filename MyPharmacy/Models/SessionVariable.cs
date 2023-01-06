@@ -5,7 +5,7 @@
         public const string SessionKeyUserId = "SessionKeyUserId";
         public const string SessionKeyUserEmail = "SessionKeyUserEmail";
         public const string SessionKeyUserRoleId = "SessionKeyUserRoleId";
-        public const string SessionKeySessionId = "SessionKeySessionId";        
+        public const string SessionKeySessionId = "SessionKeySessionId";
 
         public enum SessionKeyName
         {

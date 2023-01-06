@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyPharmacy.Data;
+using MyPharmacy.Models;
 
 namespace MyPharmacy.Areas.Dashboard.Controllers
 {
@@ -15,8 +16,21 @@ namespace MyPharmacy.Areas.Dashboard.Controllers
         public IActionResult Index()
         {
             ViewData["Title"] = "Dashboard";
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString(SessionVariable.SessionKeyUserId)))
+            {
+                HttpContext.Session.SetString("MessageType", "danger");
+                HttpContext.Session.SetString("Message", "Session expired! Please Login Again.");
+                return RedirectToAction("Index", "Home", new { area = "Default" });
+            }
 
-            return View();
+            if (Common.isAuthorized(HttpContext.Session.GetString(SessionVariable.SessionKeyUserId), this.ControllerContext))
+                return View();
+            else
+            {
+                HttpContext.Session.SetString("MessageType", "danger");
+                HttpContext.Session.SetString("Message", "Sorry! You are not Authorized for this operation.");
+                return RedirectToAction("Index", "Home", new { area = "Dashboard" });
+            }
         }
 
     }

@@ -42,8 +42,6 @@ namespace MyPharmacy.Controllers
                             HttpContext.Session.SetString("SessionKeyUserEmail", emp.EmailAddress.ToString());
                             HttpContext.Session.SetString("SessionKeyUserRoleId", emp.RoleId.ToString());
                             HttpContext.Session.SetString("SessionKeySessionId", Guid.NewGuid().ToString());
-                            HttpContext.Session.SetString("SessionKeyMessageType", "success");
-                            HttpContext.Session.SetString("SessionKeyMessage", "Successfully Logged In");
 
                             passed = true;
                             break;//stopping loop if employee password is verified and correct
@@ -52,20 +50,20 @@ namespace MyPharmacy.Controllers
 
                     if (passed)
                     {
-                        HttpContext.Session.SetString("SessionKeyMessageType", "success");
-                        HttpContext.Session.SetString("SessionKeyMessage", "Successfully Logged In");
-                        return RedirectToRoute("Dashboard", new { controller = "Home", action = "Index" });
-                    }
-                    else
-                    {
-                        HttpContext.Session.SetString("SessionKeyMessageType", "success");
-                        HttpContext.Session.SetString("SessionKeyMessage", "Successfully Logged In");
+                        HttpContext.Session.SetString("MessageType", "success");
+                        HttpContext.Session.SetString("Message", "Successfully Logged In");
+                        TempData["MessageType"] = "success";
+                        TempData["Message"] = "Successfully Logged In";
+                        return RedirectToAction("Index", "Home", new { area = "Dashboard" });
                     }
                 }
             }
 
-            //if not successful
-            return RedirectToRoute("Default", new { controller = "Home", action = "Index" });
+            TempData["MessageType"] = "danger";
+            TempData["Message"] = "Account not found! Please check your email address and/or password";
+            HttpContext.Session.SetString("MessageType", "danger");
+            HttpContext.Session.SetString("Message", "Account not found! Please check your email address and/or password");
+            return RedirectToAction("Index", "Home", new { area = "Default" });
         }
 
         public IActionResult Logout()
@@ -74,9 +72,9 @@ namespace MyPharmacy.Controllers
             HttpContext.Session.Remove(SessionVariable.SessionKeyUserEmail);
             HttpContext.Session.Remove(SessionVariable.SessionKeyUserRoleId);
             HttpContext.Session.Remove(SessionVariable.SessionKeySessionId);
-            HttpContext.Session.SetString("SessionKeyMessageType", "success");
-            HttpContext.Session.SetString("SessionKeyMessage", "Successfully Logged Out");
 
+            HttpContext.Session.SetString("MessageType", "success");
+            HttpContext.Session.SetString("Message", "Successfully Logged Out!");
             return Redirect("/Home/Index");
         }
 

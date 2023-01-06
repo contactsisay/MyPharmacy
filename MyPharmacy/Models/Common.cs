@@ -1,13 +1,23 @@
 ﻿using BALibrary.Admin;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
+
 namespace MyPharmacy.Models
 {
     public class Common
     {
+        public static bool isAuthorized(string? userId, ControllerContext controllerContext)
+        {
+            bool pass = false;
+            string actionName = controllerContext.RouteData.Values["action"].ToString();
+            string controllerName = controllerContext.RouteData.Values["controller"].ToString();
+
+            return pass;
+        }
         public static decimal GetProductBatchBalance(int ProductBatchId)
         {
             decimal returnValue = 0;

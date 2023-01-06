@@ -10,12 +10,10 @@ namespace MyPharmacy.Areas.HR.Controllers
     public class EmployeesController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IEmployeeService _iemployeeService;
 
-        public EmployeesController(ApplicationDbContext context, IEmployeeService iemployeeService)
+        public EmployeesController(ApplicationDbContext context)
         {
             _context = context;
-            _iemployeeService = iemployeeService;
         }
 
         // GET: HR/Employees
