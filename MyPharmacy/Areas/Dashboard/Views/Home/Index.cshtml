@@ -1,0 +1,101 @@
+﻿@using BALibrary.Admin;
+@inject MyPharmacy.Data.ApplicationDbContext _context;
+@{
+    List<RoleModule> userRoleModules = (List<RoleModule>)ViewBag.UserRoleModules;
+}
+
+<div class="text-center">
+    <br /><h1 class="display-4">Dashboard</h1>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        @if (userRoleModules != null && userRoleModules.Count > 0)
+        {
+            <div class="container-fluid">
+                <div class="row">
+
+                    @if (Common.CheckModuleExistance(userRoleModules, (int)Common.ModuleName.ADMIN))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-dark">
+                                <div class="inner">
+                                    <p>ADMINISTRATION</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-bag"></i>
+                                </div>
+                                <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="small-box-footer">Load Module <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.CheckModuleExistance(userRoleModules, (int)Common.ModuleName.DASHBOARD))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-green">
+                                <div class="inner">
+                                    <p>DASHBOARD</p>
+                                </div>
+                                <a asp-area="Dashboard" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.CheckModuleExistance(userRoleModules, (int)Common.ModuleName.HR))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-orange">
+                                <div class="inner">
+                                    <p>HR</p>
+                                </div>
+                                <a asp-area="HR" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.CheckModuleExistance(userRoleModules, (int)Common.ModuleName.INVENTORY))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-olive">
+                                <div class="inner">
+                                    <p>INVENTORY</p>
+                                </div>
+                                <a asp-area="Inventory" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.CheckModuleExistance(userRoleModules, (int)Common.ModuleName.SALES))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-cyan">
+                                <div class="inner">
+                                    <p>SALES</p>
+                                </div>
+                                <a asp-area="Sales" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-lg-12 bg-gradient-orange text-white text-bold">
+                <p><span class="text-lg">SORRY!</span> <br />You don't have access to any of the modules. Contact Your Administrator!</p>
+            </div>
+        }
+    </div>
+</div>
