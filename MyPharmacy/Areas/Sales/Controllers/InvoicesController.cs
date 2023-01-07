@@ -28,6 +28,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/Invoices/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.Invoices == null)
             {
                 return NotFound();
@@ -50,6 +52,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/Invoices/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name");
             ViewData["InvoiceTypeId"] = new SelectList(_context.InvoiceTypes, "Id", "Name");
 
@@ -71,6 +75,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
 
         public async Task<IActionResult> PrintInvoice(int id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             Invoice invoice = _context.Invoices.Find(id);
             List<InvoiceDetail> invoiceDetails = _context.InvoiceDetails.Where(idd => idd.InvoiceId == id).ToList();
             ViewData["Invoice"] = invoice;
@@ -80,6 +86,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
 
         public async Task<IActionResult> GenerateInvoice(int id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             Invoice invoice = _context.Invoices.Find(id);
             List<InvoiceDetail> invoiceDetails = _context.InvoiceDetails.Where(idd => idd.InvoiceId == id).ToList();
             ViewData["Invoice"] = invoice;
@@ -164,24 +172,20 @@ namespace MyPharmacy.Areas.Sales.Controllers
 
                 #endregion
 
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+
                 return RedirectToAction("GenerateInvoice", new { id = invoice.Id });
             }
 
             return RedirectToAction("GenerateInvoice", new { id = invoice.Id });
         }
 
-        [HttpPost()]
-        public ActionResult CheckStockBalance(string id)
-        {
-            //bool pass = false;
-
-
-            return Ok(id);
-        }
-
         // GET: Sales/Invoices/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.Invoices == null)
             {
                 return NotFound();
@@ -236,7 +240,18 @@ namespace MyPharmacy.Areas.Sales.Controllers
                 _context.Invoices.Update(invoice);
             }
 
-            await _context.SaveChangesAsync();
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -247,6 +262,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,InvoiceTypeId,InvoiceNo,InvoiceTotal,InvoiceDate")] Invoice invoice)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id != invoice.Id)
             {
                 return NotFound();
@@ -257,7 +274,18 @@ namespace MyPharmacy.Areas.Sales.Controllers
                 try
                 {
                     _context.Update(invoice);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -280,6 +308,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/Invoices/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.Invoices == null)
             {
                 return NotFound();
@@ -346,7 +376,18 @@ namespace MyPharmacy.Areas.Sales.Controllers
                 _context.Invoices.Remove(invoice);
             }
 
-            await _context.SaveChangesAsync();
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 

@@ -22,6 +22,11 @@ namespace MyPharmacy.Controllers
             return View();
         }
 
+        public IActionResult Login()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Login(string emlAddress, string passWrd)
@@ -50,8 +55,6 @@ namespace MyPharmacy.Controllers
 
                     if (passed)
                     {
-                        HttpContext.Session.SetString("MessageType", "success");
-                        HttpContext.Session.SetString("Message", "Successfully Logged In");
                         TempData["MessageType"] = "success";
                         TempData["Message"] = "Successfully Logged In";
                         return RedirectToAction("Index", "Home", new { area = "Dashboard" });
@@ -59,10 +62,8 @@ namespace MyPharmacy.Controllers
                 }
             }
 
-            TempData["MessageType"] = "danger";
+            TempData["MessageType"] = "error";
             TempData["Message"] = "Account not found! Please check your email address and/or password";
-            HttpContext.Session.SetString("MessageType", "danger");
-            HttpContext.Session.SetString("Message", "Account not found! Please check your email address and/or password");
             return RedirectToAction("Index", "Home", new { area = "Default" });
         }
 
@@ -73,9 +74,9 @@ namespace MyPharmacy.Controllers
             HttpContext.Session.Remove(SessionVariable.SessionKeyUserRoleId);
             HttpContext.Session.Remove(SessionVariable.SessionKeySessionId);
 
-            HttpContext.Session.SetString("MessageType", "success");
-            HttpContext.Session.SetString("Message", "Successfully Logged Out!");
-            return Redirect("/Home/Index");
+            TempData["MessageType"] = "success";
+            TempData["Message"] = "Successfully Logged Out";
+            return RedirectToAction("Index", "Home", new { area = "Default" });
         }
 
         public IActionResult Privacy()

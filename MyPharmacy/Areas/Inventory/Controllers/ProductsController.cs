@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BALibrary.Inventory;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BALibrary.Inventory;
 using MyPharmacy.Data;
 using MyPharmacy.Models;
 
@@ -31,6 +27,8 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.Products == null)
             {
                 return NotFound();
@@ -51,6 +49,8 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Products/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["ProductCategoryId"] = new SelectList(_context.ProductCategories, "Id", "Name");
             ViewData["UomId"] = new SelectList(_context.Uoms, "Id", "Name");
             return View();
@@ -66,7 +66,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(product);
-                await _context.SaveChangesAsync();
+                int pass = await _context.SaveChangesAsync();
+
+                if (pass > 0)
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                }
+                else
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProductCategoryId"] = new SelectList(_context.ProductCategories, "Id", "Name", product.ProductCategoryId);
@@ -77,6 +88,9 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.Products == null)
             {
                 return NotFound();
@@ -109,7 +123,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
                 try
                 {
                     _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -132,6 +157,9 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.Products == null)
             {
                 return NotFound();
@@ -163,14 +191,25 @@ namespace MyPharmacy.Areas.Inventory.Controllers
             {
                 _context.Products.Remove(product);
             }
-            
-            await _context.SaveChangesAsync();
+
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProductExists(int id)
         {
-          return _context.Products.Any(e => e.Id == id);
+            return _context.Products.Any(e => e.Id == id);
         }
     }
 }

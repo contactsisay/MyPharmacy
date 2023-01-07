@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BALibrary.Sales;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BALibrary.Sales;
 using MyPharmacy.Data;
+using MyPharmacy.Models;
 
 namespace MyPharmacy.Areas.Sales.Controllers
 {
@@ -23,12 +19,14 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/InvoiceTypes
         public async Task<IActionResult> Index()
         {
-              return View(await _context.InvoiceTypes.ToListAsync());
+            return View(await _context.InvoiceTypes.ToListAsync());
         }
 
         // GET: Sales/InvoiceTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.InvoiceTypes == null)
             {
                 return NotFound();
@@ -47,6 +45,8 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/InvoiceTypes/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             return View();
         }
 
@@ -60,7 +60,18 @@ namespace MyPharmacy.Areas.Sales.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(invoiceType);
-                await _context.SaveChangesAsync();
+                int pass = await _context.SaveChangesAsync();
+
+                if (pass > 0)
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                }
+                else
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(invoiceType);
@@ -69,6 +80,9 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/InvoiceTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.InvoiceTypes == null)
             {
                 return NotFound();
@@ -99,7 +113,18 @@ namespace MyPharmacy.Areas.Sales.Controllers
                 try
                 {
                     _context.Update(invoiceType);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -120,6 +145,9 @@ namespace MyPharmacy.Areas.Sales.Controllers
         // GET: Sales/InvoiceTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.InvoiceTypes == null)
             {
                 return NotFound();
@@ -149,14 +177,25 @@ namespace MyPharmacy.Areas.Sales.Controllers
             {
                 _context.InvoiceTypes.Remove(invoiceType);
             }
-            
-            await _context.SaveChangesAsync();
+
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool InvoiceTypeExists(int id)
         {
-          return _context.InvoiceTypes.Any(e => e.Id == id);
+            return _context.InvoiceTypes.Any(e => e.Id == id);
         }
     }
 }

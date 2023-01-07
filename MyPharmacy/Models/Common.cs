@@ -1,23 +1,152 @@
 ﻿using BALibrary.Admin;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
+using MyPharmacy.Data;
 using System.Data;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MyPharmacy.Models
 {
     public class Common
     {
-        public static bool isAuthorized(string? userId, ControllerContext controllerContext)
+        private static readonly ApplicationDbContext db = new ApplicationDbContext();
+
+        public static bool isAuthorized(int userRoleId, string areaName, string controllerName, string actionName)
         {
-            bool pass = false;
-            string actionName = controllerContext.RouteData.Values["action"].ToString();
-            string controllerName = controllerContext.RouteData.Values["controller"].ToString();
+            bool pass = true;//Authorized
+            bool found = false;
+            List<RoleModule> roleModules = db.RoleModules.Where(rm => rm.RoleId.Equals(userRoleId)).ToList();
+            foreach (RoleModule roleModule in roleModules)
+            {
+                //module name to be checked
+                string moduleName = Common.GetModuleText((ModuleName)roleModule.ModuleId);
+                if (moduleName.Equals(areaName))
+                {
+                    List<RoleModuleException> roleModuleExceptions = db.RoleModuleExceptions.Where(rme => rme.RoleModuleId.Equals(roleModule.Id)).Where(rme => rme.TableName.Equals(controllerName)).ToList();
+                    foreach (RoleModuleException roleModuleException in roleModuleExceptions)
+                    {
+                        if (roleModuleException.FullyDenied)
+                            pass = false; //Fully Denied
+                        else if (roleModuleException.FullyGranted)
+                            pass = true;
+                        else if ((!roleModuleException.Add && actionName.Equals("Add")) || (!roleModuleException.Edit && actionName.Equals("Edit")) || (!roleModuleException.Delete && actionName.Equals("Delete")))
+                            pass = false;
+                    }
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found && !areaName.Equals("DASHBOARD"))
+                pass = found;//if not found and it is not DASHBOARD, then it means he/she is FULLY DENIED for the Module
 
             return pass;
         }
+
+        public static String NumberToCurrency(decimal amt)
+        {
+            return String.Format("{0:N}", amt);
+        }
+
+        public static string CurrencyToWords(decimal number)
+        {
+            string[] digit = { "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
+            string[] baseten = { "", "", "Twenty", "Thirty", "Fourty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety" };
+            string[] expo = { "", "Thousand", "Million", "Billion", "Trillion", "Quadrillion", "Quintillion" };
+
+            if (number == Decimal.Zero)
+                return "Zero";
+
+            decimal n = Decimal.Truncate(number);
+            decimal cents = Decimal.Truncate((number - n) * 100);
+
+            StringBuilder sb = new StringBuilder();
+            int thousands = 0;
+            decimal power = 1;
+
+            if (n < 0)
+            {
+                sb.Append("minus ");
+                n = -n;
+            }
+
+            for (decimal i = n; i >= 1000; i /= 1000)
+            {
+                power *= 1000;
+                thousands++;
+            }
+
+            bool sep = false;
+            for (decimal i = n; thousands >= 0; i %= power, thousands--, power /= 1000)
+            {
+                int j = (int)(i / power);
+                int k = j % 100;
+                int hundreds = j / 100;
+                int tens = j % 100 / 10;
+                int ones = j % 10;
+
+                if (j == 0)
+                    continue;
+
+                if (hundreds > 0)
+                {
+                    if (sep)
+                        sb.Append(", ");
+
+                    sb.Append(digit[hundreds]);
+                    sb.Append(" Hundred");
+                    sep = true;
+                }
+
+                if (k != 0)
+                {
+                    if (sep)
+                    {
+                        sb.Append(" and ");
+                        sep = false;
+                    }
+
+                    if (k < 20)
+                        sb.Append(digit[k]);
+                    else
+                    {
+                        sb.Append(baseten[tens]);
+                        if (ones > 0)
+                        {
+                            sb.Append("-");
+                            sb.Append(digit[ones]);
+                        }
+                    }
+                }
+
+                if (thousands > 0)
+                {
+                    sb.Append(" ");
+                    sb.Append(expo[thousands]);
+                    sep = true;
+                }
+            }
+
+            if (cents == decimal.Zero)
+            {
+                sb.Append(" Only");
+            }
+            else
+            {
+                sb.Append(" and ");
+                if (cents < 10)
+                    sb.Append("0");
+
+                sb.Append(cents);
+                sb.Append("/100");
+            }
+
+            return sb.ToString();
+        }
+
         public static decimal GetProductBatchBalance(int ProductBatchId)
         {
             decimal returnValue = 0;
@@ -229,11 +358,11 @@ namespace MyPharmacy.Models
         public enum ModuleName
         {
             ADMIN = 1,
-            DASHBOARD = 2,
-            HR = 3,
-            INVENTORY = 4,
-            PURCHASE = 5,
-            SALES = 6,
+            HR = 2,
+            INVENTORY = 3,
+            PURCHASE = 4,
+            SALES = 5,
+            REPORT = 6,
         };
 
         public enum StockEntry
@@ -280,8 +409,6 @@ namespace MyPharmacy.Models
             string name = string.Empty;
             if (module_name == ModuleName.ADMIN)
                 name = ModuleName.ADMIN.ToString();
-            else if (module_name == ModuleName.DASHBOARD)
-                name = ModuleName.DASHBOARD.ToString();
             else if (module_name == ModuleName.HR)
                 name = ModuleName.HR.ToString();
             else if (module_name == ModuleName.INVENTORY)
@@ -290,6 +417,8 @@ namespace MyPharmacy.Models
                 name = ModuleName.PURCHASE.ToString();
             else if (module_name == ModuleName.SALES)
                 name = ModuleName.SALES.ToString();
+            else if (module_name == ModuleName.REPORT)
+                name = ModuleName.REPORT.ToString();
 
             return name;
         }
@@ -299,8 +428,6 @@ namespace MyPharmacy.Models
             ModuleName name = ModuleName.ADMIN;
             if (module_name == ModuleName.ADMIN.ToString())
                 name = ModuleName.ADMIN;
-            else if (module_name == ModuleName.DASHBOARD.ToString())
-                name = ModuleName.DASHBOARD;
             else if (module_name == ModuleName.HR.ToString())
                 name = ModuleName.HR;
             else if (module_name == ModuleName.INVENTORY.ToString())
@@ -309,6 +436,8 @@ namespace MyPharmacy.Models
                 name = ModuleName.PURCHASE;
             else if (module_name == ModuleName.SALES.ToString())
                 name = ModuleName.SALES;
+            else if (module_name == ModuleName.REPORT.ToString())
+                name = ModuleName.REPORT;
 
             return name;
         }

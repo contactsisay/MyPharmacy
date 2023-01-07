@@ -1,4 +1,5 @@
-﻿@{
+﻿@inject IHttpContextAccessor _httpContextAccessor;
+@{
     Layout = "~/Views/Shared/_MasterLayout.cshtml";
 }
 
@@ -12,15 +13,8 @@
 
     <!-- Sidebar -->
     <div class="sidebar os-host os-host-resize-disabled os-host-transition os-host-overflow os-host-overflow-y os-host-scrollbar-horizontal-hidden os-theme-dark">
-        <!-- Sidebar user panel (optional) -->
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-                <img src="~/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-            </div>
-            <div class="info">
-                <a href="#" class="d-block">Sisay M.</a>
-            </div>
-        </div>
+       
+        @Html.Partial("_CurrentUserPanel")
 
         <!-- SidebarSearch Form -->
         <div class="form-inline">
@@ -120,3 +114,24 @@
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+
+<input type="hidden" id="messageType" value="@_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyMessageType)" />
+<input type="hidden" id="message" value="@_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyMessage)" />
+
+@section Scripts{
+    <script type="text/javascript">
+        $(function () {
+            var messageTypeItem = document.getElementById("messageType");
+            var messageItem = document.getElementById("message");
+
+            if (messageTypeItem.value == "success")
+                toastr.success(messageItem.value, "Success Message");
+            else if (messageTypeItem.value == "error")
+                toastr.error(messageItem.value, "Error Message");
+            else if (messageTypeItem.value == "info")
+                toastr.info(messageItem.value, "Info Message");
+            else if (messageTypeItem.value == "warning")
+                toastr.warning(messageItem.value, "Warning Message");
+        });
+    </script>
+}

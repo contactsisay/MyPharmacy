@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BALibrary.HR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BALibrary.HR;
 using MyPharmacy.Data;
+using MyPharmacy.Models;
 
 namespace MyPharmacy.Areas.HR.Controllers
 {
@@ -30,6 +27,8 @@ namespace MyPharmacy.Areas.HR.Controllers
         // GET: HR/JobPositions/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.JobPositions == null)
             {
                 return NotFound();
@@ -49,6 +48,8 @@ namespace MyPharmacy.Areas.HR.Controllers
         // GET: HR/JobPositions/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
             return View();
         }
@@ -63,7 +64,18 @@ namespace MyPharmacy.Areas.HR.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(jobPosition);
-                await _context.SaveChangesAsync();
+                int pass = await _context.SaveChangesAsync();
+
+                if (pass > 0)
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                }
+                else
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", jobPosition.DepartmentId);
@@ -73,6 +85,9 @@ namespace MyPharmacy.Areas.HR.Controllers
         // GET: HR/JobPositions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.JobPositions == null)
             {
                 return NotFound();
@@ -104,7 +119,18 @@ namespace MyPharmacy.Areas.HR.Controllers
                 try
                 {
                     _context.Update(jobPosition);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -126,6 +152,9 @@ namespace MyPharmacy.Areas.HR.Controllers
         // GET: HR/JobPositions/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.JobPositions == null)
             {
                 return NotFound();
@@ -156,14 +185,25 @@ namespace MyPharmacy.Areas.HR.Controllers
             {
                 _context.JobPositions.Remove(jobPosition);
             }
-            
-            await _context.SaveChangesAsync();
+
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool JobPositionExists(int id)
         {
-          return _context.JobPositions.Any(e => e.Id == id);
+            return _context.JobPositions.Any(e => e.Id == id);
         }
     }
 }

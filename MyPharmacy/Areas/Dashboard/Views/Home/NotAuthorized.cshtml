@@ -1,0 +1,131 @@
+﻿@using BALibrary.Admin;
+@using static MyPharmacy.Models.Common;
+@inject MyPharmacy.Data.ApplicationDbContext _context;
+@{
+    List<RoleModule> userRoleModules = (List<RoleModule>)ViewBag.UserRoleModules;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Dashboard</h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">&nbsp;</div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        @if (userRoleModules != null && userRoleModules.Count > 0)
+        {
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-- USED AS LANDING PAGE -->
+                    <div class="col-lg-2 col-3">
+                        <!-- small box -->
+                        <div class="small-box bg-gradient-green">
+                            <div class="inner">
+                                <p>DASHBOARD</p>
+                            </div>
+                            <a asp-area="Dashboard" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- ./col -->
+                    @if (Common.isAuthorized(userRoleModules[0].RoleId, Common.GetModuleText((ModuleName)Common.ModuleName.ADMIN), "Home", "Index"))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-dark">
+                                <div class="inner">
+                                    <p>ADMINISTRATION</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-bag"></i>
+                                </div>
+                                <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="small-box-footer">Load Module <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.isAuthorized(userRoleModules[0].RoleId, Common.GetModuleText((ModuleName)Common.ModuleName.HR), "Home", "Index"))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-orange">
+                                <div class="inner">
+                                    <p>HR</p>
+                                </div>
+                                <a asp-area="HR" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.isAuthorized(userRoleModules[0].RoleId, Common.GetModuleText((ModuleName)Common.ModuleName.PURCHASE), "Home", "Index"))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-blue">
+                                <div class="inner">
+                                    <p>PURCHASE</p>
+                                </div>
+                                <a asp-area="Purchase" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.isAuthorized(userRoleModules[0].RoleId, Common.GetModuleText((ModuleName)Common.ModuleName.INVENTORY), "Home", "Index"))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-olive">
+                                <div class="inner">
+                                    <p>INVENTORY</p>
+                                </div>
+                                <a asp-area="Inventory" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.isAuthorized(userRoleModules[0].RoleId, Common.GetModuleText((ModuleName)Common.ModuleName.SALES), "Home", "Index"))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-cyan">
+                                <div class="inner">
+                                    <p>SALES</p>
+                                </div>
+                                <a asp-area="Sales" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                    @if (Common.isAuthorized(userRoleModules[0].RoleId, Common.GetModuleText((ModuleName)Common.ModuleName.REPORT), "Home", "Index"))
+                    {
+                        <div class="col-lg-2 col-3">
+                            <!-- small box -->
+                            <div class="small-box bg-gradient-green">
+                                <div class="inner">
+                                    <p>REPORT</p>
+                                </div>
+                                <a asp-area="Report" asp-controller="Home" asp-action="Index" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    }
+
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-lg-12">
+                <p><span class="text-lg bg-gradient-red text-white text-bold">SORRY!</span> <br />You don't have access to any of the modules. Contact Your Administrator!</p>
+            </div>
+        }
+    </div>
+</div>

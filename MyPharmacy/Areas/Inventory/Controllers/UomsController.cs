@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BALibrary.Inventory;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BALibrary.Inventory;
 using MyPharmacy.Data;
+using MyPharmacy.Models;
 
 namespace MyPharmacy.Areas.Inventory.Controllers
 {
@@ -23,12 +19,14 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Uoms
         public async Task<IActionResult> Index()
         {
-              return View(await _context.Uoms.ToListAsync());
+            return View(await _context.Uoms.ToListAsync());
         }
 
         // GET: Inventory/Uoms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.Uoms == null)
             {
                 return NotFound();
@@ -47,6 +45,8 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Uoms/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             return View();
         }
 
@@ -60,7 +60,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(uom);
-                await _context.SaveChangesAsync();
+                int pass = await _context.SaveChangesAsync();
+
+                if (pass > 0)
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                }
+                else
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(uom);
@@ -69,6 +80,9 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Uoms/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.Uoms == null)
             {
                 return NotFound();
@@ -99,7 +113,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
                 try
                 {
                     _context.Update(uom);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -120,6 +145,9 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/Uoms/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.Uoms == null)
             {
                 return NotFound();
@@ -149,14 +177,25 @@ namespace MyPharmacy.Areas.Inventory.Controllers
             {
                 _context.Uoms.Remove(uom);
             }
-            
-            await _context.SaveChangesAsync();
+
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool UomExists(int id)
         {
-          return _context.Uoms.Any(e => e.Id == id);
+            return _context.Uoms.Any(e => e.Id == id);
         }
     }
 }

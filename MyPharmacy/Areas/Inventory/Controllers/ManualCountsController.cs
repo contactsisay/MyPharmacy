@@ -27,6 +27,8 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/ManualCounts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null || _context.ManualCounts == null)
             {
                 return NotFound();
@@ -46,6 +48,8 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/ManualCounts/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["ProductBatchId"] = new SelectList(_context.ProductBatches, "Id", "BatchNo");
             ViewData["ProductBatches"] = _context.ProductBatches.Include(p => p.Product).Where(p => p.Status == 1).ToList();
             return View();
@@ -84,7 +88,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
                         mCount.Description = string.Empty;
 
                     _context.Add(mCount);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                    }
                 }
             }
 
@@ -96,6 +111,9 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/ManualCounts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.ManualCounts == null)
             {
                 return NotFound();
@@ -127,7 +145,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
                 try
                 {
                     _context.Update(manualCount);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -149,6 +178,9 @@ namespace MyPharmacy.Areas.Inventory.Controllers
         // GET: Inventory/ManualCounts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
             if (id == null || _context.ManualCounts == null)
             {
                 return NotFound();
@@ -180,7 +212,18 @@ namespace MyPharmacy.Areas.Inventory.Controllers
                 _context.ManualCounts.Remove(manualCount);
             }
 
-            await _context.SaveChangesAsync();
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 

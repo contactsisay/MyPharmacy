@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyPharmacy.Data;
+using MyPharmacy.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.IdleTimeout = TimeSpan.FromSeconds(300);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -45,6 +46,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+app.UseMiddleware<MyAuthenticator>();
 
 app.MapControllerRoute(
     name: "areas",

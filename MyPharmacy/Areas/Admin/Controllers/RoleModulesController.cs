@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyPharmacy.Data;
+using MyPharmacy.Models;
 
 namespace MyPharmacy.Areas.Admin.Controllers
 {
@@ -127,6 +128,8 @@ namespace MyPharmacy.Areas.Admin.Controllers
         // GET: UserModule/RoleModules/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null)
             {
                 return NotFound();
@@ -146,6 +149,8 @@ namespace MyPharmacy.Areas.Admin.Controllers
         // GET: UserModule/RoleModules/Create
         public IActionResult Create()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
             return View();
         }
@@ -160,7 +165,18 @@ namespace MyPharmacy.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(roleModule);
-                await _context.SaveChangesAsync();
+                int pass = await _context.SaveChangesAsync();
+
+                if (pass > 0)
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                }
+                else
+                {
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", roleModule.RoleId);
@@ -169,6 +185,8 @@ namespace MyPharmacy.Areas.Admin.Controllers
 
         public async Task<ActionResult> RoleModuleExceptions(int id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["RoleModules"] = _context.RoleModules.Include(r => r.Role).Where(r => r.Id == id).ToList();
             var applicationDbContext = _context.RoleModuleExceptions.Include(r => r.RoleModule).Where(r => r.RoleModuleId == id);
             ViewData["TableNames"] = MyPharmacy.Models.Common.GetTableNames();
@@ -182,7 +200,6 @@ namespace MyPharmacy.Areas.Admin.Controllers
             int id = (int)HttpContext.Session.GetInt32("_SelectedId");
             if (!string.IsNullOrEmpty(form["roleModuleId"]))
             {
-
                 int roleModuleId = Convert.ToInt32(form["roleModuleId"]);
                 List<string> tableNames = MyPharmacy.Models.Common.GetTableNames();
 
@@ -251,6 +268,9 @@ namespace MyPharmacy.Areas.Admin.Controllers
                 ViewData["TableNames"] = MyPharmacy.Models.Common.GetTableNames();
                 //return View(applicationDbContext);
 
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Role Module Exceptions Updated Successfully!");
+
                 return RedirectToAction("Index", "Roles", new { area = "HR" });
             }
 
@@ -260,6 +280,8 @@ namespace MyPharmacy.Areas.Admin.Controllers
         // GET: UserModule/RoleModules/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null)
             {
                 return NotFound();
@@ -291,7 +313,18 @@ namespace MyPharmacy.Areas.Admin.Controllers
                 try
                 {
                     _context.Update(roleModule);
-                    await _context.SaveChangesAsync();
+                    int pass = await _context.SaveChangesAsync();
+
+                    if (pass > 0)
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Updated!");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -313,6 +346,8 @@ namespace MyPharmacy.Areas.Admin.Controllers
         // GET: UserModule/RoleModules/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             if (id == null)
             {
                 return NotFound();
@@ -336,7 +371,18 @@ namespace MyPharmacy.Areas.Admin.Controllers
         {
             var roleModule = await _context.RoleModules.FindAsync(id);
             _context.RoleModules.Remove(roleModule);
-            await _context.SaveChangesAsync();
+            int pass = await _context.SaveChangesAsync();
+
+            if (pass > 0)
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Deleted Successfully!");
+            }
+            else
+            {
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
+            }
             return RedirectToAction(nameof(Index));
         }
 

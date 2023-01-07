@@ -5,8 +5,20 @@ namespace MyPharmacy.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
+            var configuration = builder.Build();
+            optionsBuilder.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
+        }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
+        {
+
+        }
+
+        public ApplicationDbContext()
         {
         }
 
@@ -47,6 +59,9 @@ namespace MyPharmacy.Data
         public DbSet<BALibrary.Sales.Invoice> Invoices { get; set; }
         public DbSet<BALibrary.Sales.InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<BALibrary.Sales.InvoiceType> InvoiceTypes { get; set; }
+
+        public DbSet<BALibrary.Report.ReportType> ReportTypes { get; set; }
+        public DbSet<BALibrary.Report.SavedReport> SavedReports { get; set; }
 
     }
 }

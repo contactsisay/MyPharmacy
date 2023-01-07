@@ -6,6 +6,8 @@
         public const string SessionKeyUserEmail = "SessionKeyUserEmail";
         public const string SessionKeyUserRoleId = "SessionKeyUserRoleId";
         public const string SessionKeySessionId = "SessionKeySessionId";
+        public const string SessionKeyMessageType = "SessionKeyMessageType";
+        public const string SessionKeyMessage = "SessionKeyMessage";
 
         public enum SessionKeyName
         {
@@ -13,6 +15,8 @@
             SessionKeyUserEmail = 1,
             SessionKeyUserRoleId = 2,
             SessionKeySessionId = 3,
+            SessionKeyMessageType = 4,
+            SessionKeyMessage = 5,
         }
     }
 }
