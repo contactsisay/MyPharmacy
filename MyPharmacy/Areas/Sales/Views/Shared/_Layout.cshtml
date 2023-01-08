@@ -41,32 +41,40 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="InvoiceTypes" asp-action="Index" class="nav-link">
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.SALES), "InvoiceTypes", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="InvoiceTypes" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Invoice Types</p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="CustomerTypes" asp-action="Index" class="nav-link">
+                        </li>}
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.SALES), "CustomerTypes", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="CustomerTypes" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Customer Types</p>
                             </a>
-                        </li>
+                        </li>}
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a asp-controller="Customers" asp-action="Index" class="nav-link">
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.SALES), "Customers", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Customers" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Customers</p>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a asp-controller="Invoices" asp-action="Index" class="nav-link">
+                </li>}
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.SALES), "Invoices", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Invoices" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Invoices</p>
                     </a>
-                </li>
+                </li>}
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
@@ -94,7 +102,7 @@
     </div>
     <!-- /.content-header -->
     <!-- Main content -->
-    <section class="content">
+    <section class="content" style="background-color:#fff;">
         <div class="container-fluid">
             @RenderBody()
         </div><!--/. container-fluid -->

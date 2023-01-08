@@ -54,7 +54,25 @@ namespace MyPharmacy.Areas.Purchase.Controllers
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name");
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Address");
+            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Name");
+
+            #region Preparing parameters
+            var products = _context.Products.Include(p => p.Uom);
+            var suppliers = _context.Suppliers;
+            var pOptions = string.Empty;
+            var sOptions = string.Empty;
+            foreach (Product p in products)
+            {
+                pOptions += p.Id + "#" + (p.Name + "(" + p.Code + ")") + "#" + p.Uom.Name + "#" + p.MinimumOrderLevel + ",";//id#(name+code)#uom-name#minimum-order-level
+            }
+            foreach (Supplier s in suppliers)
+            {
+                sOptions += s.Id + "#" + (s.Name + "(" + s.ContactPersonName + ")") + "#" + s.ContactPersonMobile + "#" + s.Address + ",";//id#(name+contact-person-name)#contact-person-mobile#supplier-address
+            }
+            #endregion
+
+            ViewData["pOptions"] = pOptions;
+            ViewData["sOptions"] = sOptions;
             return View();
         }
 
@@ -93,72 +111,113 @@ namespace MyPharmacy.Areas.Purchase.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePR(PurchaseOrderViewModel purchaseOrderViewModel)
+        public async Task<IActionResult> CreatePR(PurchaseOrderViewModel purchaseOrderViewModel, IFormCollection iformCollection)
         {
             int currentUserId = 1;//default admin account id
             if (HttpContext.Session.GetString(SessionVariable.SessionKeyUserId) != null)
                 currentUserId = Convert.ToInt32(HttpContext.Session.GetString(SessionVariable.SessionKeyUserId));
 
-            ProductBatch productBatch = purchaseOrderViewModel.ProductBatch;
-            PurchaseOrder purchaseOrder = purchaseOrderViewModel.PurchaseOrder;
+            ProductBatch productBatch = new ProductBatch();
+            PurchaseOrder purchaseOrder = new PurchaseOrder();
 
-            //Purchase Order
-            int poId = 0;
-            if (purchaseOrder != null)
+            for (int i = 0; i < iformCollection.Count; i++)
             {
-                purchaseOrder.RequiredAmount = purchaseOrder.ApprovedAmount;
-                purchaseOrder.RequestedBy = currentUserId;
-                purchaseOrder.RequestedAt = DateTime.Now;
-                purchaseOrder.ProductId = productBatch.ProductId;
-
-                _context.Add(purchaseOrder);
-                poId = await _context.SaveChangesAsync();
-            }
-
-            //Product Batch
-            int pbId = 0;
-            if (poId > 0 && productBatch != null)
-            {
-                productBatch.PurchaseOrderId = purchaseOrder.Id;
-                productBatch.EmployeeId = currentUserId;
-                productBatch.Status = 1;
-
-                _context.Add(productBatch);
-                pbId = await _context.SaveChangesAsync();
-            }
-
-            //Stock
-            int sId = 0;
-            if (poId > 0 && pbId > 0)
-            {
-                Stock stock = new Stock();
-                stock.ProductBatchId = productBatch.Id;
-                stock.InitialQuantity = purchaseOrder.ApprovedAmount;
-                stock.SoldQuantity = 0;
-                stock.CurrentQuantity = purchaseOrder.ApprovedAmount;
-                stock.ActionTaken = 0;//purchase
-                stock.Description = "Entered from Purchase Order";
-                stock.Status = 0;
-                stock.EmployeeId = currentUserId;
-                stock.UpdatedAt = DateTime.Now;
-
-                _context.Stocks.Add(stock);
-                int pass = await _context.SaveChangesAsync();
-
-                if (pass > 0)
+                if (!string.IsNullOrEmpty(iformCollection["productid_" + i]))
                 {
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
-                }
-                else
-                {
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                    productBatch = new ProductBatch();
+                    productBatch.ProductId = Convert.ToInt32(iformCollection["productid_" + i].ToString());
+                    if (!string.IsNullOrEmpty(iformCollection["batch_no_" + i]))
+                        productBatch.BatchNo = iformCollection["batch_no_" + i].ToString();
+                    else
+                        break;
+
+                    productBatch.ManufacturedDate = Convert.ToDateTime(iformCollection["manufactured_date_" + i].ToString());
+                    productBatch.BestBefore = Convert.ToDateTime(iformCollection["best_before_" + i].ToString());
+                    productBatch.ExpirationDate = Convert.ToDateTime(iformCollection["expiry_date_" + i].ToString());
+                    productBatch.PurchasingPrice = Convert.ToDecimal(iformCollection["purchasing_price_" + i].ToString());
+                    productBatch.SellingPrice = Convert.ToDecimal(iformCollection["selling_price_" + i].ToString());
+                    productBatch.IsSellable = (iformCollection["is_sellable_" + i].ToString() == "on" ? true : false);
+                    productBatch.IsTaxable = (iformCollection["istaxable_" + i].ToString() == "on" ? true : false);
+                    productBatch.EmployeeId = currentUserId;
+                    productBatch.Status = 1;
+
+                    purchaseOrder = new PurchaseOrder();
+                    if (!string.IsNullOrEmpty(iformCollection["supplierid_" + i]))
+                        purchaseOrder.SupplierId = Convert.ToInt32(iformCollection["supplierid_" + i].ToString());
+                    else
+                        break;
+
+                    purchaseOrder.ProductId = productBatch.ProductId;
+                    purchaseOrder.RequiredAmount = Convert.ToInt32(iformCollection["quantity_" + i].ToString());
+                    purchaseOrder.ApprovedAmount = Convert.ToInt32(iformCollection["quantity_" + i].ToString());
+                    purchaseOrder.RequestedAt = DateTime.Now;
+                    purchaseOrder.RequestedBy = currentUserId;
+                    purchaseOrder.ApprovedBy = currentUserId;
+                    purchaseOrder.ApprovedAt = DateTime.Now;
+                    purchaseOrder.Status = 1;
+
+                    #region Saving the details
+
+                    //Purchase Order
+                    int poId = 0;
+                    if (purchaseOrder != null)
+                    {
+                        purchaseOrder.RequiredAmount = purchaseOrder.ApprovedAmount;
+                        purchaseOrder.RequestedBy = currentUserId;
+                        purchaseOrder.RequestedAt = DateTime.Now;
+                        purchaseOrder.ProductId = productBatch.ProductId;
+
+                        _context.Add(purchaseOrder);
+                        poId = await _context.SaveChangesAsync();
+                    }
+
+                    //Product Batch
+                    int pbId = 0;
+                    if (poId > 0 && productBatch != null)
+                    {
+                        productBatch.PurchaseOrderId = purchaseOrder.Id;
+                        productBatch.EmployeeId = currentUserId;
+                        productBatch.Status = 1;
+
+                        _context.Add(productBatch);
+                        pbId = await _context.SaveChangesAsync();
+                    }
+
+                    //Stock
+                    int sId = 0;
+                    if (poId > 0 && pbId > 0)
+                    {
+                        Stock stock = new Stock();
+                        stock.ProductBatchId = productBatch.Id;
+                        stock.InitialQuantity = purchaseOrder.ApprovedAmount;
+                        stock.SoldQuantity = 0;
+                        stock.CurrentQuantity = purchaseOrder.ApprovedAmount;
+                        stock.ActionTaken = 0;//purchase
+                        stock.Description = "Entered from Purchase Order";
+                        stock.Status = 0;
+                        stock.EmployeeId = currentUserId;
+                        stock.UpdatedAt = DateTime.Now;
+
+                        _context.Stocks.Add(stock);
+                        int pass = await _context.SaveChangesAsync();
+
+                        if (pass > 0)
+                        {
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                        }
+                        else
+                        {
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Saved!");
+                        }
+                    }
+                    #endregion
                 }
             }
 
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", purchaseOrder.ProductId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Address", purchaseOrder.SupplierId);
+            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Name", purchaseOrder.SupplierId);
             return RedirectToAction(nameof(Index));
         }
 

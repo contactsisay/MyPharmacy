@@ -41,20 +41,24 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Suppliers" asp-action="Index" class="nav-link">
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.PURCHASE), "Suppliers", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Suppliers" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Suppliers</p>
                             </a>
-                        </li>
+                        </li>}
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a asp-controller="PurchaseOrders" asp-action="Index" class="nav-link">
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.PURCHASE), "PurchaseOrders", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="PurchaseOrders" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Purchase Orders</p>
                     </a>
-                </li>
+                </li>}
 
             </ul>
         </nav>
@@ -83,7 +87,7 @@
     </div>
     <!-- /.content-header -->
     <!-- Main content -->
-    <section class="content">
+    <section class="content" style="background-color:#fff;">
         <div class="container-fluid">
             @RenderBody()
         </div><!--/. container-fluid -->

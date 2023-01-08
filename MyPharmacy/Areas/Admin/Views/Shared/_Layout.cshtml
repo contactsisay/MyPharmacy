@@ -42,12 +42,15 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Roles" asp-action="Index" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Roles</p>
-                            </a>
-                        </li>
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)),Common.GetModuleText(Common.ModuleName.ADMIN),"Roles","Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Roles" asp-action="Index" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Roles</p>
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </li>
             </ul>
@@ -77,7 +80,7 @@
     </div>
     <!-- /.content-header -->
     <!-- Main content -->
-    <section class="content">
+    <section class="content" style="background-color:#fff;">
         <div class="container-fluid">
             @RenderBody()
         </div><!--/. container-fluid -->

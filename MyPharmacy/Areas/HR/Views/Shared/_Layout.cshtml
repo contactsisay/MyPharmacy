@@ -41,38 +41,50 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Departments" asp-action="Index" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Departments</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="UserTypes" asp-action="Index" class="nav-link">
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.HR), "Departments", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Departments" asp-action="Index" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Departments</p>
+                                </a>
+                             </li>
+                        }
+
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.HR), "UserTypes", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="UserTypes" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>User Types</p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="EmploymentTypes" asp-action="Index" class="nav-link">
+                        </li>}
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.HR), "EmploymentTypes", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="EmploymentTypes" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Employment Types</p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="JobPositions" asp-action="Index" class="nav-link">
+                        </li>}
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.HR), "JobPositions", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="JobPositions" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Job Positions</p>
                             </a>
-                        </li>                        
+                        </li>}                        
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a asp-controller="Employees" asp-action="Index" class="nav-link">
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.HR), "Employees", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Employees" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Staff Directory</p>
                     </a>
-                </li>
+                </li>}
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
@@ -100,7 +112,7 @@
     </div>
     <!-- /.content-header -->
     <!-- Main content -->
-    <section class="content">
+    <section class="content" style="background-color:#fff;">
         <div class="container-fluid">
             @RenderBody()
         </div><!--/. container-fluid -->

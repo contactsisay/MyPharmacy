@@ -41,44 +41,57 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Uoms" asp-action="Index" class="nav-link">
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "Uoms", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Uoms" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Unit of Measurements</p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="ProductCategories" asp-action="Index" class="nav-link">
+                        </li>}
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "ProductCategories", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="ProductCategories" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Product Category</p>
                             </a>
-                        </li>
+                        </li>}
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a asp-controller="Products" asp-action="Index" class="nav-link">
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "Products", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Products" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Products</p>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a asp-controller="ProductBatches" asp-action="Index" class="nav-link">
+                </li>}
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "ProductBatches", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="ProductBatches" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Product Batches</p>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a asp-controller="ManualCounts" asp-action="Index" class="nav-link">
+                </li>}
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "ManualCounts", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="ManualCounts" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
-                        <p>Manual Count</p>
+                        <p>Manual Count & Reconciliation</p>
                     </a>
-                </li>
+                </li>}
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "Stocks", "Index"))
+                        {
                 <li class="nav-item">
                     <a asp-controller="Stocks" asp-action="Index" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Stocks</p>
                     </a>
                 </li>
+                        }
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
@@ -106,7 +119,7 @@
     </div>
     <!-- /.content-header -->
     <!-- Main content -->
-    <section class="content">
+    <section class="content" style="background-color:#fff;">
         <div class="container-fluid">
             @RenderBody()
         </div><!--/. container-fluid -->

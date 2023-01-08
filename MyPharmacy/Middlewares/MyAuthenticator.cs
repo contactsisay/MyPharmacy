@@ -14,31 +14,36 @@ namespace MyPharmacy.Middlewares
 
         public Task Invoke(HttpContext httpContext)
         {
-            var controllerName = httpContext.Request.RouteValues["controller"].ToString();
-            var actionName = httpContext.Request.RouteValues["action"].ToString();
-            var areaName = (httpContext.Request.RouteValues["area"] == null ? string.Empty : httpContext.Request.RouteValues["area"].ToString().ToUpper());
-
-            //is the current user authorized
-            if (httpContext.Session.GetString(SessionVariable.SessionKeyUserId) == null || httpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId) == null)
+            try
             {
-                httpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
-                httpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Session Expired! Please login again!");
+                var controllerName = httpContext.Request.RouteValues["controller"].ToString();
+                var actionName = httpContext.Request.RouteValues["action"].ToString();
+                var areaName = (httpContext.Request.RouteValues["area"] == null ? string.Empty : httpContext.Request.RouteValues["area"].ToString().ToUpper());
 
-                if (!areaName.Equals(string.Empty))
-                    httpContext.Response.Redirect("/Home/Login");
-            }
-            else if (httpContext.Session.GetString(SessionVariable.SessionKeyUserId) != null && httpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId) != null)
-            {
-                int userRoleId = Convert.ToInt32(httpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId));
-
-                bool isAuthorized = Common.isAuthorized(userRoleId, areaName, controllerName, actionName);
-                if (!isAuthorized)
+                //is the current user authorized
+                if (httpContext.Session.GetString(SessionVariable.SessionKeyUserId) == null || httpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId) == null)
                 {
                     httpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
-                    httpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Sorry! You are NOT Authorized to access this page!");
-                    httpContext.Response.Redirect("/Dashboard/Home/NotAuthorized");
+                    httpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Session Expired! Please login again!");
+
+                    if (!areaName.Equals(string.Empty))
+                        httpContext.Response.Redirect("/Home/Login");
                 }
+                else if (httpContext.Session.GetString(SessionVariable.SessionKeyUserId) != null && httpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId) != null)
+                {
+                    int userRoleId = Convert.ToInt32(httpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId));
+
+                    bool isAuthorized = Common.isAuthorized(userRoleId, areaName, controllerName, actionName);
+                    if (!isAuthorized)
+                    {
+                        httpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                        httpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Sorry! You are NOT Authorized to access this page!");
+                        httpContext.Response.Redirect("/Dashboard/Home/NotAuthorized");
+                    }
+                }
+
             }
+            catch (Exception ex) { }
 
             return _next(httpContext);
         }

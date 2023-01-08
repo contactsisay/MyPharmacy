@@ -41,52 +41,64 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="ReportTypes" asp-action="Index" class="nav-link">
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "ReportTypes", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="ReportTypes" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Report Types</p>
                             </a>
-                        </li>
+                        </li>}
                     </ul>
                 </li>
 
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            Reports
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Reports" asp-action="DailySalesReport" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Daily Sales</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Reports" asp-action="PurchaseReport" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Purchase Report</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Reports" asp-action="StockBalanceReport" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Stock Balance Report</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Reports" asp-action="ProfitLossReport" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Profit/Loss</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "Index"))
+                {
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-th"></i>
+                            <p>
+                                Reports
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "SalesReport"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Home" asp-action="SalesReport" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Sales Report</p>
+                                </a>
+                            </li>}
+                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "PurchaseReport"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Home" asp-action="PurchaseReport" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Purchase Report</p>
+                                </a>
+                            </li>}
+                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "StockBalanceReport"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Home" asp-action="StockBalanceReport" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Stock Balance Report</p>
+                                </a>
+                            </li>}
+                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "ProfitLossReport"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Home" asp-action="ProfitLossReport" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Profit/Loss</p>
+                                </a>
+                            </li>}
+                        </ul>
+                    </li>
+                }
 
-               
 
             </ul>
         </nav>
@@ -115,7 +127,7 @@
     </div>
     <!-- /.content-header -->
     <!-- Main content -->
-    <section class="content">
+    <section class="content" style="background-color:#fff;">
         <div class="container-fluid">
             @RenderBody()
         </div><!--/. container-fluid -->

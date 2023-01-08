@@ -107,18 +107,6 @@
 
 <script type="text/javascript">
 
-   function bindOnKeyUp(id){
-       var element = document.getElementById(id).value;
-        $.ajax({
-            type: "POST",
-            url: "/Sales/Invoices/CheckStockBalance",
-            data: element,
-            success: function (data) {
-                
-            }
-        });
-   }
-
     function onItemSelect(rowId) {
         var item = document.getElementById(rowId);
         var itemId = item.value;
