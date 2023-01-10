@@ -22,7 +22,7 @@ namespace MyPharmacy.Areas.Report.Controllers
             return View();
         }
 
-        public async Task<IActionResult> SalesReport(string? ReportTypeId, string? FromDate, string? ToDate, string? EmployeeId)
+        public async Task<IActionResult> SalesReport(string? FromDate, string? ToDate, string? EmployeeId)
         {
             var queryResult = from d in _context.InvoiceDetails
                               join dr in _context.Invoices on d.InvoiceId equals dr.Id
@@ -41,12 +41,12 @@ namespace MyPharmacy.Areas.Report.Controllers
 
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
-            ViewData["ReportTypeId"] = new SelectList(_context.ReportTypes, "Id", "Name", ReportTypeId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName", EmployeeId);
             ViewData["Title"] = "Sales Report";
 
             ViewData["queryResult"] = queryResult;
             return View();
         }
+
     }
 }

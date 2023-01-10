@@ -133,6 +133,21 @@ namespace MyPharmacy.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ModuleTables",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ModuleId = table.Column<int>(type: "int", nullable: false),
+                    TableName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ModuleTables", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductCategories",
                 columns: table => new
                 {
@@ -147,17 +162,39 @@ namespace MyPharmacy.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReportTypes",
+                name: "ProfitLossReports",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GeneratedQuery = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportTypes", x => x.Id);
+                    table.PrimaryKey("PK_ProfitLossReports", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PurchaseReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GeneratedQuery = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PurchaseReports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -173,6 +210,24 @@ namespace MyPharmacy.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SalesReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GeneratedQuery = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SalesReports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -202,6 +257,24 @@ namespace MyPharmacy.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SocialMedias", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StockReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GeneratedQuery = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StockReports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -399,31 +472,6 @@ namespace MyPharmacy.Data.Migrations
                         name: "FK_JobPositions_Departments_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SavedReports",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReportTypeId = table.Column<int>(type: "int", nullable: false),
-                    ReportName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GeneratedQuery = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EmployeeId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SavedReports", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SavedReports_ReportTypes_ReportTypeId",
-                        column: x => x.ReportTypeId,
-                        principalTable: "ReportTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1126,11 +1174,6 @@ namespace MyPharmacy.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SavedReports_ReportTypeId",
-                table: "SavedReports",
-                column: "ReportTypeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Stocks_ProductBatchId",
                 table: "Stocks",
                 column: "ProductBatchId");
@@ -1190,13 +1233,25 @@ namespace MyPharmacy.Data.Migrations
                 name: "ManualCounts");
 
             migrationBuilder.DropTable(
+                name: "ModuleTables");
+
+            migrationBuilder.DropTable(
+                name: "ProfitLossReports");
+
+            migrationBuilder.DropTable(
                 name: "PurchaseOrders");
+
+            migrationBuilder.DropTable(
+                name: "PurchaseReports");
 
             migrationBuilder.DropTable(
                 name: "RoleModuleExceptions");
 
             migrationBuilder.DropTable(
-                name: "SavedReports");
+                name: "SalesReports");
+
+            migrationBuilder.DropTable(
+                name: "StockReports");
 
             migrationBuilder.DropTable(
                 name: "Stocks");
@@ -1230,9 +1285,6 @@ namespace MyPharmacy.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoleModules");
-
-            migrationBuilder.DropTable(
-                name: "ReportTypes");
 
             migrationBuilder.DropTable(
                 name: "ProductBatches");

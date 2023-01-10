@@ -25,6 +25,7 @@ namespace MyPharmacy.Data
         public DbSet<BALibrary.Admin.Role> Roles { get; set; }
         public DbSet<BALibrary.Admin.RoleModule> RoleModules { get; set; }
         public DbSet<BALibrary.Admin.RoleModuleException> RoleModuleExceptions { get; set; }
+        public DbSet<BALibrary.Admin.ModuleTable> ModuleTables { get; set; }
 
         public DbSet<BALibrary.HR.Department> Departments { get; set; }
         public DbSet<BALibrary.HR.DocumentType> DocumentTypes { get; set; }
@@ -60,8 +61,9 @@ namespace MyPharmacy.Data
         public DbSet<BALibrary.Sales.InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<BALibrary.Sales.InvoiceType> InvoiceTypes { get; set; }
 
-        public DbSet<BALibrary.Report.ReportType> ReportTypes { get; set; }
-        public DbSet<BALibrary.Report.SavedReport> SavedReports { get; set; }
-
+        public DbSet<BALibrary.Report.ProfitLossReport> ProfitLossReports { get; set; }
+        public DbSet<BALibrary.Report.PurchaseReport> PurchaseReports { get; set; }
+        public DbSet<BALibrary.Report.SalesReport> SalesReports { get; set; }
+        public DbSet<BALibrary.Report.StockReport> StockReports { get; set; }
     }
 }

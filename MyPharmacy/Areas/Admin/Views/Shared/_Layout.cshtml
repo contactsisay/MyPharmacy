@@ -5,16 +5,16 @@
 }
 
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar elevation-4 sidebar-light-navy">
+<aside class="main-sidebar elevation-4 sidebar-light-danger">
     <!-- Brand Logo -->
-    <a href="/" class="brand-link bg-navy">
-        <img src="~/dist/img/AdminLTELogo.png" alt="School ERP" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <a href="/" class="brand-link bg-danger">
+        <img src="~/dist/img/AdminLTELogo.png" alt="MyPharmacy APP" class="brand-image img-circle elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">MyPharmacy</span>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar os-host os-host-resize-disabled os-host-transition os-host-overflow os-host-overflow-y os-host-scrollbar-horizontal-hidden os-theme-dark">
-       
+
         @Html.Partial("_CurrentUserPanel")
 
         <!-- SidebarSearch Form -->
@@ -42,17 +42,26 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)),Common.GetModuleText(Common.ModuleName.ADMIN),"Roles","Index"))
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.ADMIN), "ModuleTables", "Index"))
                         {
                             <li class="nav-item">
-                                <a asp-controller="Roles" asp-action="Index" class="nav-link">
+                                <a asp-controller="ModuleTables" asp-action="Index" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Roles</p>
+                                    <p>Module Tables</p>
                                 </a>
                             </li>
                         }
                     </ul>
                 </li>
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.ADMIN), "Roles", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Roles" asp-action="Index" class="nav-link">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Roles</p>
+                        </a>
+                    </li>
+                }
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

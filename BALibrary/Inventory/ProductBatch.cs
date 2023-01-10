@@ -45,6 +45,6 @@ namespace BALibrary.Inventory
         [ScaffoldColumn(false)]
         public int Status { get; set; }
         [ForeignKey("ProductId")]
-        public virtual Product? Product { get; set; }
+        public virtual Product Product { get; set; }
     }
 }

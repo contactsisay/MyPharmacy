@@ -14,7 +14,7 @@ namespace BALibrary.Admin
 
         [Required(ErrorMessage = "Please Select Table")]
         [Display(Name = "Table Name")]
-        public string TableName { get; set; } //from db
+        public string TableName { get; set; } //from module-table
 
         [Display(Name = "Browse")]
         public bool Browse { get; set; } = true;

@@ -4,10 +4,10 @@
 }
 
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar elevation-4 sidebar-light-navy">
+<aside class="main-sidebar elevation-4 sidebar-light-danger">
     <!-- Brand Logo -->
-    <a href="/" class="brand-link bg-navy">
-        <img src="~/dist/img/AdminLTELogo.png" alt="School ERP" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <a href="/" class="brand-link bg-danger">
+        <img src="~/dist/img/AdminLTELogo.png" alt="MyPharmacy APP" class="brand-image img-circle elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">MyPharmacy</span>
     </a>
 
@@ -36,69 +36,49 @@
                     <a href="#" class="nav-link active">
                         <i class="nav-icon fas fa-th"></i>
                         <p>
-                            Lookups
+                            Reports
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "ReportTypes", "Index"))
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "SalesReports", "Index"))
                         {
                             <li class="nav-item">
-                                <a asp-controller="ReportTypes" asp-action="Index" class="nav-link">
+                                <a asp-controller="SalesReports" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Report Types</p>
+                                <p>Sales Report</p>
                             </a>
-                        </li>}
-                    </ul>
-                </li>
-
-                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "Index"))
-                {
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-th"></i>
-                            <p>
-                                Reports
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "SalesReport"))
-                            {
-                                <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="SalesReport" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Sales Report</p>
-                                </a>
-                            </li>}
-                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "PurchaseReport"))
-                            {
-                                <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="PurchaseReport" class="nav-link">
+                        </li>
+                        }
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "PurchaseReports", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="PurchaseReports" asp-action="Index" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Purchase Report</p>
                                 </a>
-                            </li>}
-                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "StockBalanceReport"))
-                            {
-                                <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="StockBalanceReport" class="nav-link">
+                            </li>
+                        }
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "StockReports", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="StockReports" asp-action="Index" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Stock Balance Report</p>
+                                    <p>Stock Report</p>
                                 </a>
-                            </li>}
-                            @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "Home", "ProfitLossReport"))
-                            {
-                                <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="ProfitLossReport" class="nav-link">
+                            </li>
+                        }
+                        @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.REPORT), "ProfitLossReports", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="ProfitLossReports" asp-action="Index" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Profit/Loss</p>
+                                    <p>Profit/Loss Report</p>
                                 </a>
-                            </li>}
-                        </ul>
-                    </li>
-                }
-
+                            </li>
+                        }
+                    </ul>
+                </li>
 
             </ul>
         </nav>

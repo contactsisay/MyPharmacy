@@ -233,9 +233,9 @@ namespace MyPharmacy.Models
         {
             List<SelectListItem> list = new List<SelectListItem>();
             SelectListItem item = new SelectListItem();
-            item.Value = "-1";
-            item.Text = "--Select--";
-            list.Add(item);
+            //item.Value = "-1";
+            //item.Text = "--Select--";
+            //list.Add(item);
 
             if (table_name != null && table_name != "" && fields.Count() >= 2)
             {
@@ -363,6 +363,7 @@ namespace MyPharmacy.Models
             PURCHASE = 4,
             SALES = 5,
             REPORT = 6,
+            DASHBOARD = 7,
         };
 
         public enum StockEntry
@@ -419,6 +420,8 @@ namespace MyPharmacy.Models
                 name = ModuleName.SALES.ToString();
             else if (module_name == ModuleName.REPORT)
                 name = ModuleName.REPORT.ToString();
+            else if (module_name == ModuleName.DASHBOARD)
+                name = ModuleName.DASHBOARD.ToString();
 
             return name;
         }
@@ -438,24 +441,23 @@ namespace MyPharmacy.Models
                 name = ModuleName.SALES;
             else if (module_name == ModuleName.REPORT.ToString())
                 name = ModuleName.REPORT;
+            else if (module_name == ModuleName.DASHBOARD.ToString())
+                name = ModuleName.DASHBOARD;
 
             return name;
         }
 
-        public static List<SelectListItem> FillModuleComboBox(string key)
+        public static List<SelectListItem> FillModuleComboBox()
         {
             List<SelectListItem> collection = new List<SelectListItem>();
             SelectListItem item = new SelectListItem();
             string[] names = Enum.GetNames(typeof(ModuleName));
             foreach (string name in names)
             {
-                if (string.IsNullOrEmpty(key) && name.ToLower().Contains(key.ToLower()))
-                {
-                    item = new SelectListItem();
-                    item.Value = name;
-                    item.Text = name;
-                    collection.Add(item);
-                }
+                item = new SelectListItem();
+                item.Value = name;
+                item.Text = name;
+                collection.Add(item);
             }
 
             return collection;

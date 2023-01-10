@@ -14,7 +14,7 @@ namespace MyPharmacy.Middlewares
 
         public Task Invoke(HttpContext httpContext)
         {
-            try
+            if (httpContext.Request.RouteValues["controller"] != null)
             {
                 var controllerName = httpContext.Request.RouteValues["controller"].ToString();
                 var actionName = httpContext.Request.RouteValues["action"].ToString();
@@ -43,7 +43,6 @@ namespace MyPharmacy.Middlewares
                 }
 
             }
-            catch (Exception ex) { }
 
             return _next(httpContext);
         }

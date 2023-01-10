@@ -27,6 +27,36 @@ namespace MyPharmacy.Areas.Admin.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
+        // GET: UserModule/RoleModules/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var roleModule = await _context.RoleModules
+                .Include(r => r.Role)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (roleModule == null)
+            {
+                return NotFound();
+            }
+
+            return View(roleModule);
+        }
+
+        // GET: UserModule/RoleModules/Create
+        public IActionResult Create()
+        {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveRoleModules(IFormCollection form)
@@ -74,85 +104,7 @@ namespace MyPharmacy.Areas.Admin.Controllers
                 }
             }
 
-            return RedirectToAction("Index", "Roles", new { area = "HR" });
-        }
-
-        public async Task<IActionResult> SaveRoleModuleExceptions(IFormCollection form)
-        {
-            int id = (int)HttpContext.Session.GetInt32("_SelectedId");
-            if (!string.IsNullOrEmpty(form["roleId"]))
-            {
-                int roleId = Convert.ToInt32(form["roleId"]);
-                string[] moduleNames = MyPharmacy.Models.Common.GetModuleNames();
-                foreach (string moduleName in moduleNames)
-                {
-                    string m = form[moduleName.ToUpper() + "_" + roleId];
-                    if (!string.IsNullOrEmpty(m))
-                    {
-                        int moduleId = (int)MyPharmacy.Models.Common.GetModuleId(moduleName);
-                        List<RoleModule> roleModules = _context.RoleModules.Where(rm => rm.RoleId == roleId).Where(rm => rm.ModuleId == moduleId).ToList();
-
-                        if (roleModules.Count <= 0)
-                        {
-                            RoleModule roleM = new RoleModule();
-                            roleM.RoleId = roleId;
-                            roleM.ModuleId = moduleId;
-                            _context.Add(roleM);
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-                    else
-                    {
-                        int moduleId = (int)MyPharmacy.Models.Common.GetModuleId(moduleName);
-                        List<RoleModule> roleModules = _context.RoleModules.Where(rm => rm.RoleId == roleId).Where(rm => rm.ModuleId == moduleId).ToList();
-                        foreach (RoleModule rm in roleModules)
-                        {
-                            _context.RoleModules.Remove(rm);
-                            await _context.SaveChangesAsync();
-
-                            //Looking in role module exceptions
-                            List<RoleModuleException> roleMExceptions = _context.RoleModuleExceptions.Where(r => r.RoleModuleId == rm.Id).ToList();
-                            if (roleMExceptions.Count > 0)
-                            {
-                                _context.RoleModuleExceptions.RemoveRange(roleMExceptions);
-                                await _context.SaveChangesAsync();
-                            }
-                        }
-                    }
-                }
-            }
-
-            return RedirectToAction("Index", "Roles", new { area = "HR" });
-        }
-
-        // GET: UserModule/RoleModules/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
-            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var roleModule = await _context.RoleModules
-                .Include(r => r.Role)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (roleModule == null)
-            {
-                return NotFound();
-            }
-
-            return View(roleModule);
-        }
-
-        // GET: UserModule/RoleModules/Create
-        public IActionResult Create()
-        {
-            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
-            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
-            return View();
+            return RedirectToAction("Index", "Roles", new { area = "Admin" });
         }
 
         // POST: UserModule/RoleModules/Create
@@ -187,97 +139,100 @@ namespace MyPharmacy.Areas.Admin.Controllers
         {
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
-            ViewData["RoleModules"] = _context.RoleModules.Include(r => r.Role).Where(r => r.Id == id).ToList();
+
+            List<RoleModule> roleModules = _context.RoleModules.Include(r => r.Role).Where(r => r.Id == id).ToList();
             var applicationDbContext = _context.RoleModuleExceptions.Include(r => r.RoleModule).Where(r => r.RoleModuleId == id);
-            ViewData["TableNames"] = MyPharmacy.Models.Common.GetTableNames();
+            ViewData["RoleModules"] = roleModules;
+            ViewData["ModuleId"] = new SelectList(Common.FillModuleComboBox(), "Value", "Text");
+            ViewData["TableNames"] = Common.GetCustomSelectList("ModuleTables", new List<string> { "Id", "TableName" }, " ModuleId=" + roleModules[0].ModuleId);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RoleModuleExceptions(IFormCollection form)
+        public async Task<IActionResult> SaveRoleModuleExceptions(IFormCollection form)
         {
-            int id = (int)HttpContext.Session.GetInt32("_SelectedId");
+            int id = (int)HttpContext.Session.GetInt32("_SelectedId");//roleModuleId
+
             if (!string.IsNullOrEmpty(form["roleModuleId"]))
             {
-                int roleModuleId = Convert.ToInt32(form["roleModuleId"]);
-                List<string> tableNames = MyPharmacy.Models.Common.GetTableNames();
+                int roleModuleId = Convert.ToInt32(form["roleModuleId"].ToString());
+                List<RoleModuleException> roleModuleExceptions = _context.RoleModuleExceptions.Where(rme => rme.RoleModuleId == roleModuleId).ToList();
 
-                foreach (string tableName in tableNames)
+                RoleModule roleModule = _context.RoleModules.Find(roleModuleId);
+                List<SelectListItem> moduleTables = Common.GetCustomSelectList("ModuleTables", new List<string> { "Id", "TableName" }, " ModuleId=" + roleModule.ModuleId);
+
+                if (roleModuleExceptions.Count > 0)//exceptions already added for the selected role module (update)
                 {
-                    string access_right = form[tableName + "_access"];
-                    RoleModuleException rme = new RoleModuleException();
-                    if (access_right == "1")
-                    { //fully denied
-                        rme.TableName = tableName.ToUpper();
-                        rme.Browse = false;
-                        rme.Read = false;
-                        rme.Edit = false;
-                        rme.Add = false;
-                        rme.Delete = false;
-                        rme.FullyDenied = true;
-                        rme.FullyGranted = false;
-                        rme.AccessRightName = 1;
-                        rme.Status = 1;
-
-                        rme.RoleModuleId = roleModuleId;
-                        _context.RoleModuleExceptions.Add(rme);
-                        await _context.SaveChangesAsync();
-                    }
-                    else if (access_right != null && access_right != "0" && access_right != "1")
+                    foreach (SelectListItem moduleTable in moduleTables)
                     {
-                        rme.TableName = tableName.ToUpper();
-                        if (!string.IsNullOrEmpty(form[tableName + "_b"]))
-                            rme.Browse = false;
-                        else
-                            rme.Browse = true;
+                        roleModuleExceptions = roleModuleExceptions.Where(rme => rme.TableName.Equals(moduleTable.Text.ToString())).OrderByDescending(rme => rme.Id).ToList();
+                        if (roleModuleExceptions.Count > 0)
+                        {
+                            RoleModuleException rme = roleModuleExceptions[0];
+                            rme.Browse = !string.IsNullOrEmpty(form[moduleTable.Text + "_b"].ToString()) ? true : false;
+                            rme.Read = !string.IsNullOrEmpty(form[moduleTable.Text + "_r"].ToString()) ? true : false;
+                            rme.Edit = !string.IsNullOrEmpty(form[moduleTable.Text + "_e"].ToString()) ? true : false;
+                            rme.Add = !string.IsNullOrEmpty(form[moduleTable.Text + "_a"].ToString()) ? true : false;
+                            rme.Delete = !string.IsNullOrEmpty(form[moduleTable.Text + "_d"].ToString()) ? true : false;
+                            rme.Status = 1;
 
-                        if (!string.IsNullOrEmpty(form[tableName + "_r"]))
-                            rme.Read = false;
-                        else
-                            rme.Read = true;
+                            if (rme.Browse && rme.Read && rme.Edit && rme.Add && rme.Delete)
+                            {
+                                rme.FullyGranted = true;
+                                rme.FullyDenied = false;
+                            }
+                            if (!rme.Browse && !rme.Read && !rme.Edit && !rme.Add && !rme.Delete)
+                            {
+                                rme.FullyDenied = true;
+                                rme.FullyGranted = false;
+                            }
 
-                        if (!string.IsNullOrEmpty(form[tableName + "_e"]))
-                            rme.Edit = false;
-                        else
-                            rme.Edit = true;
+                            _context.RoleModuleExceptions.Update(rme);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
 
-                        if (!string.IsNullOrEmpty(form[tableName + "_a"]))
-                            rme.Add = false;
-                        else
-                            rme.Add = true;
-
-                        if (!string.IsNullOrEmpty(form[tableName + "_d"]))
-                            rme.Delete = false;
-                        else
-                            rme.Delete = true;
-
-                        rme.FullyDenied = false;
-                        rme.FullyGranted = false;
-                        rme.AccessRightName = 1;
-                        rme.Status = 1;
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Updated Successfully!");
+                }
+                else //adding new exceptions
+                {
+                    foreach (SelectListItem moduleTable in moduleTables)
+                    {
+                        RoleModuleException rme = new RoleModuleException();
                         rme.RoleModuleId = roleModuleId;
+                        rme.TableName = moduleTable.Text;
+                        rme.Browse = !string.IsNullOrEmpty(form[moduleTable.Text + "_b"].ToString()) ? true : false;
+                        rme.Read = !string.IsNullOrEmpty(form[moduleTable.Text + "_r"].ToString()) ? true : false;
+                        rme.Edit = !string.IsNullOrEmpty(form[moduleTable.Text + "_e"].ToString()) ? true : false;
+                        rme.Add = !string.IsNullOrEmpty(form[moduleTable.Text + "_a"].ToString()) ? true : false;
+                        rme.Delete = !string.IsNullOrEmpty(form[moduleTable.Text + "_d"].ToString()) ? true : false;
+                        rme.Status = 1;
+
+                        if (rme.Browse && rme.Read && rme.Edit && rme.Add && rme.Delete)
+                        {
+                            rme.FullyGranted = true;
+                            rme.FullyDenied = false;
+                        }
+                        if (!rme.Browse && !rme.Read && !rme.Edit && !rme.Add && !rme.Delete)
+                        {
+                            rme.FullyDenied = true;
+                            rme.FullyGranted = false;
+                        }
 
                         _context.RoleModuleExceptions.Add(rme);
                         await _context.SaveChangesAsync();
                     }
+
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
                 }
-
-                ViewData["RoleModules"] = _context.RoleModules.Include(r => r.Role).Where(r => r.Id == id).ToList();
-                var applicationDbContext = _context.RoleModuleExceptions.Include(r => r.RoleModule).Where(r => r.RoleModuleId == id);
-                ViewData["TableNames"] = MyPharmacy.Models.Common.GetTableNames();
-                //return View(applicationDbContext);
-
-                HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
-                HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Role Module Exceptions Updated Successfully!");
-
-                return RedirectToAction("Index", "Roles", new { area = "HR" });
             }
 
-            return RedirectToAction("Index", "Roles", new { area = "HR" });
+            return RedirectToAction("Index", "Roles", new { area = "Admin" });
         }
 
         // GET: UserModule/RoleModules/Edit/5
+
         public async Task<IActionResult> Edit(int? id)
         {
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);

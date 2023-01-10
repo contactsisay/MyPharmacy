@@ -19,6 +19,87 @@ namespace MyPharmacy.Controllers
 
         public IActionResult Index()
         {
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+
+            #region Database Cleared? No Problem. I will create one for you
+            //List<Employee> employees = _context.Employees.ToList();
+            //if (employees.Count == 0)
+            //{
+            //    //user type
+            //    UserType ut = new UserType();
+            //    ut.Name = "Staff";
+            //    ut.Status = 1;
+            //    _context.UserTypes.Add(ut);
+            //    _context.SaveChanges();
+
+            //    //department
+            //    Department dept = new Department();
+            //    dept.Name = "HR";
+            //    dept.Status = 1;
+            //    _context.Departments.Add(dept);
+            //    _context.SaveChanges();
+
+            //    //job position
+            //    JobPosition jp = new JobPosition();
+            //    jp.DepartmentId = dept.Id;
+            //    jp.InitialSalary = 5500;
+            //    jp.Name = "Administrator";
+            //    jp.Status = 1;
+            //    _context.JobPositions.Add(jp);
+            //    _context.SaveChanges();
+
+            //    //employment type
+            //    EmploymentType et = new EmploymentType();
+            //    et.Name = "Permanent";
+            //    et.Status = 1;
+            //    _context.EmploymentTypes.Add(et);
+            //    _context.SaveChanges();
+
+            //    //role
+            //    Role role = new Role();
+            //    role.Name = "Administrator Role";
+            //    role.Description = "";
+            //    role.Status = 1;
+            //    _context.Roles.Add(role);
+            //    _context.SaveChanges();
+
+            //    //role module
+            //    RoleModule rm = new RoleModule();
+            //    rm.RoleId = role.Id;
+            //    rm.ModuleId = (int)Common.ModuleName.ADMIN;
+            //    rm.Status = 1;
+            //    _context.RoleModules.Add(rm);
+            //    _context.SaveChanges();
+
+            //    //employee
+            //    Employee employee = new Employee();
+            //    employee.FirstName = "Sisay";
+            //    employee.MiddleName = "Mersha";
+            //    employee.LastName = "Mekonnen";
+            //    employee.Gender = "Male";
+            //    employee.JoinedDate = DateTime.Now;
+            //    employee.PhoneNo = "251913011370";
+            //    employee.PermanentAddress = "Ziway";
+            //    employee.Qualification = "Bsc";
+            //    employee.UserTypeId = ut.Id;
+            //    employee.JobPositionId = jp.Id;
+            //    employee.EmploymentTypeId = et.Id;
+            //    employee.RoleId = role.Id;
+            //    employee.Code = "EMP-001";
+            //    employee.WorkExperience = 10;
+            //    employee.PhotoPath = "photo.png";
+            //    employee.MaritalStatus = "Married";
+            //    employee.CurrentAddress = "Ziway";
+            //    employee.Note = "a";
+            //    employee.EmergencyContactNo = "251913011370";
+            //    employee.EmailAddress = "contactsisay@gmail.com";
+            //    employee.Password = BCrypt.Net.BCrypt.HashPassword("asdf");
+            //    employee.Status = 1;
+            //    _context.Employees.Add(employee);
+            //    _context.SaveChanges();
+            //}
+            #endregion
             return View();
         }
 
@@ -89,5 +170,6 @@ namespace MyPharmacy.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
     }
 }
