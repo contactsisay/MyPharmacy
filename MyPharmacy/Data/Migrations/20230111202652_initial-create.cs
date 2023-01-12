@@ -708,6 +708,7 @@ namespace MyPharmacy.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    SupplierInvoiceNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     SupplierId = table.Column<int>(type: "int", nullable: false),
                     RequiredAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),

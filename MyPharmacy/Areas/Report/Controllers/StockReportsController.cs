@@ -20,38 +20,44 @@ namespace MyPharmacy.Areas.Report.Controllers
         // GET: Report/StockReports
         public async Task<IActionResult> Index()
         {
-            return View(await _context.StockReports.ToListAsync());
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName");
+            ViewData["Title"] = "Report Filter";
+            return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PreviewReport(string? FromDate, string? ToDate, string? EmployeeId)
         {
-            var queryResult = from invD in _context.InvoiceDetails
-                              join inv in _context.Invoices.Include(a => a.InvoiceType).Include(a => a.Customer) on invD.InvoiceId equals inv.Id
-                              join e in _context.Employees on inv.EmployeeId equals e.Id
-                              join pb in _context.ProductBatches.Include(pb => pb.Product) on invD.ProductBatchId equals pb.Id
+            var queryResult = from p in _context.Products.Include(p => p.ProductCategory).Include(p => p.Uom)
+                              join pb in _context.ProductBatches on p.Id equals pb.ProductId
+                              join s in _context.Stocks on pb.Id equals s.ProductBatchId
+                              join e in _context.Employees on pb.EmployeeId equals e.Id
                               select new
                               {
-                                  inv.InvoiceNo,
-                                  InvoiceTypeName = inv.InvoiceType.Name,
-                                  ProductName = pb.Product.Name + "",
-                                  ProductCode = pb.Product.Code,
-                                  CustomerTINNo = inv.Customer.TINNo,
-                                  CustomerName = inv.Customer.Name + "",
-                                  ProductBatchNo = pb.BatchNo,
-                                  inv.InvoiceDate,
-                                  EmployeeFullName = e.FirstName + e.MiddleName + e.LastName,
-                                  e.Gender,
-                                  ItemQuantity = invD.Quantity,
-                                  ItemSellingPrice = invD.SellingPrice,
-                                  InvoiceRowTotal = invD.RowTotal
+                                  ProductBatchNo = s.ProductBatch.BatchNo,
+                                  ProductName = p.Name,
+                                  ProductTypeName = p.ProductCategory.Name,
+                                  ProductCode = p.Code,
+                                  ProductUomNme = p.Uom.Name,
+                                  EmployeeFullName = e.FirstName + " " + e.MiddleName + " " + e.LastName,
+                                  s.InitialQuantity,
+                                  s.SoldQuantity,
+                                  StockBalance = s.CurrentQuantity,
+                                  s.ActionTaken,
+                                  s.Description,
+                                  StockUpdatedAt = s.UpdatedAt,
+                                  p.MinimumOrderLevel,
+                                  UnderStock = (s.CurrentQuantity <= p.MinimumOrderLevel ? "YES" : "NO"),
+                                  pb.ExpirationDate,
+                                  pb.BestBefore,
+                                  pb.ManufacturedDate,
                               };
 
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName", EmployeeId);
-            ViewData["Title"] = "Sales Report";
+            ViewData["Title"] = "Stock Report";
             ViewData["queryResult"] = queryResult;
 
             return View();

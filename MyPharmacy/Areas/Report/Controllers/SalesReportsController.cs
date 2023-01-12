@@ -20,6 +20,8 @@ namespace MyPharmacy.Areas.Report.Controllers
         // GET: Report/SalesReports
         public async Task<IActionResult> Index()
         {
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName");
+            ViewData["Title"] = "Report Filter";
             return View();
         }
 
@@ -27,20 +29,20 @@ namespace MyPharmacy.Areas.Report.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PreviewReport(string? FromDate, string? ToDate, string? EmployeeId)
         {
-            var queryResult = from invD in _context.InvoiceDetails
-                              join inv in _context.Invoices.Include(a => a.InvoiceType).Include(a => a.Customer) on invD.InvoiceId equals inv.Id
-                              join e in _context.Employees on inv.EmployeeId equals e.Id
+            var queryResult = from inv in _context.Invoices.Include(a => a.InvoiceType).Include(a => a.Customer).Where(a => a.Status != 0)
+                              join invD in _context.InvoiceDetails on inv.Id equals invD.InvoiceId
                               join pb in _context.ProductBatches.Include(pb => pb.Product) on invD.ProductBatchId equals pb.Id
                               join pc in _context.ProductCategories on pb.Product.ProductCategoryId equals pc.Id
+                              join e in _context.Employees on inv.EmployeeId equals e.Id
                               select new
                               {
                                   inv.InvoiceNo,
                                   InvoiceTypeName = inv.InvoiceType.Name,
-                                  ProductName = pb.Product.Name + "",
-                                  ProductTypeName = pc.Name + "",
+                                  ProductName = pb.Product.Name,
+                                  ProductTypeName = pc.Name,
                                   ProductCode = pb.Product.Code,
                                   CustomerTINNo = inv.Customer.TINNo,
-                                  CustomerName = inv.Customer.Name + "",
+                                  CustomerName = inv.Customer.Name,
                                   ProductBatchNo = pb.BatchNo,
                                   inv.InvoiceDate,
                                   EmployeeFullName = e.FirstName + e.MiddleName + e.LastName,

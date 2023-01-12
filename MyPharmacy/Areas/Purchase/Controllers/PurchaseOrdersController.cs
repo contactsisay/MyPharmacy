@@ -81,7 +81,7 @@ namespace MyPharmacy.Areas.Purchase.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ProductId,SupplierId,RequiredAmount,ApprovedAmount")] PurchaseOrder purchaseOrder)
+        public async Task<IActionResult> Create([Bind("Id,ProductId,SupplierId,RequiredAmount,ApprovedAmount,SupplierInvoiceNo")] PurchaseOrder purchaseOrder)
         {
             int currentUserId = 1;//default admin account id
             if (HttpContext.Session.GetString(SessionVariable.SessionKeyUserId) != null)
@@ -148,6 +148,7 @@ namespace MyPharmacy.Areas.Purchase.Controllers
                         break;
 
                     purchaseOrder.ProductId = productBatch.ProductId;
+                    purchaseOrder.SupplierInvoiceNo = (string.IsNullOrEmpty(iformCollection["invoice_no"]) ? string.Empty : iformCollection["invoice_no"].ToString());
                     purchaseOrder.RequiredAmount = Convert.ToInt32(iformCollection["quantity_" + i].ToString());
                     purchaseOrder.ApprovedAmount = Convert.ToInt32(iformCollection["quantity_" + i].ToString());
                     purchaseOrder.RequestedAt = DateTime.Now;
@@ -324,7 +325,7 @@ namespace MyPharmacy.Areas.Purchase.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,SupplierId,RequiredAmount,ApprovedAmount")] PurchaseOrder purchaseOrder)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,SupplierId,RequiredAmount,ApprovedAmount,SupplierInvoiceNo")] PurchaseOrder purchaseOrder)
         {
             if (id != purchaseOrder.Id)
             {

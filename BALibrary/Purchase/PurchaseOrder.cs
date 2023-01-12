@@ -8,6 +8,8 @@ namespace BALibrary.Purchase
     {
         [Key]
         public int Id { get; set; }
+        [Display(Name = "Supplier Invoice No")]
+        public string? SupplierInvoiceNo { get; set; }
         [Required]
         [Display(Name = "Product")]
         public int ProductId { get; set; }

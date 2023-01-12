@@ -97,16 +97,16 @@
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>@Html.Raw(grandTotal + " ETB")</td>
+                                        <th style="width:50%">SUBTOTAL:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandTotal) + " ETB")</td>
                                     </tr>
                                     <tr>
-                                        <th>Tax (15%)</th>
+                                        <th>TAX (15%)</th>
                                         <td>0.0</td>
                                     </tr>
                                     <tr>
-                                        <th>Grand Total:</th>
-                                        <td>@Html.Raw(grandTotal + " ETB")</td>
+                                        <th>GRAND TOTAL:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandTotal) + " ETB")</td>
                                     </tr>
                                 </table>
                             </div>
@@ -117,10 +117,10 @@
                     <!-- this row will not appear when printing -->
                     <div class="row no-print">
                         <div class="col-12">
-                            <a asp-action="PrintReport" rel="noopener" target="_blank" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
+                            <a href="#" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
 
                             <a asp-action="Index" class="btn btn-sm btn-outline-dark float-right" style="margin-right: 5px;">
-                                <i class="fas fa-list"></i> Back to List
+                                <i class="fas fa-list"></i> Back to Filter
                             </a>
                         </div>
                     </div>

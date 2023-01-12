@@ -105,7 +105,7 @@ namespace MyPharmacy.Areas.Inventory.Controllers
 
             ViewData["ProductBatchId"] = new SelectList(_context.ProductBatches, "Id", "BatchNo", manualCount.ProductBatchId);
             ViewData["ProductBatches"] = _context.ProductBatches.Include(p => p.Product).Where(p => p.Status == 1).ToList();
-            return View(manualCount);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Inventory/ManualCounts/Edit/5

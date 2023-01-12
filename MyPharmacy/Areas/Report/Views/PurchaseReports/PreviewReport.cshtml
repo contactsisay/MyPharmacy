@@ -3,11 +3,13 @@
 @using BALibrary.Purchase;
 @inject MyPharmacy.Data.ApplicationDbContext _context;
 @{
-    ViewData["Title"] = "Sales Report";
+    ViewData["Title"] = "Purchase Report";
     Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
 
     var queryResult = ViewBag.queryResult;
     int counter = 0;
+    decimal subtotal = 0;
+    decimal overallTax = 0;
     decimal grandTotal = 0;
 }
 
@@ -45,9 +47,10 @@
                                 <thead>
                                     <tr>
                                         <th>PRODUCT #</th>
+                                        <th>SUPPLIER INVOICE #</th>
                                         <th>PRODUCT NAME</th>
                                         <th>PRODUCT BATCH NO</th>
-                                        <th>PRODUCT TYPE Type</th>
+                                        <th>PRODUCT TYPE</th>
                                         <th>PRICE (ETB)</th>
                                         <th>QUANTITY</th>
                                         <th>TOTAL BEFORE TAX</th>
@@ -58,17 +61,20 @@
                                 <tbody>
                                     @foreach (var idd in queryResult)
                                     {
-                                        grandTotal += idd.InvoiceRowTotal;
+                                        subtotal += idd.PurchaseRowTotal;
+                                        overallTax += idd.PurchaseTAX;
+                                        grandTotal += idd.purchaseRowTotalTAX;
                                         <tr>
                                             <td>@Html.Raw(++counter)</td>
+                                            <td>@Html.Raw(idd.SupplierInvoiceNo)</td>
                                             <td>@Html.Raw(idd.ProductName)</td>
                                             <td>@Html.Raw(idd.ProductBatchNo)</td>
                                             <td>@Html.Raw(idd.ProductTypeName)</td>
-                                            <td>@Html.Raw(idd.ItemSellingPrice)</td>
+                                            <td>@Html.Raw(idd.ItemPurchasingPrice)</td>
                                             <td>@Html.Raw(idd.ItemQuantity)</td>
-                                            <td>@Html.Raw(idd.ItemQuantity * idd.ItemSellingPrice)</td>
-                                            <td>@Html.Raw("0%")</td>
-                                            <td>@Html.Raw(idd.InvoiceRowTotal)</td>
+                                            <td>@Html.Raw(idd.PurchaseRowTotal)</td>
+                                            <td>@Html.Raw(idd.PurchaseTAX)</td>
+                                            <td>@Html.Raw(idd.purchaseRowTotalTAX)</td>
                                         </tr>
                                     }
 
@@ -82,7 +88,7 @@
                     <div class="row">
                         <!-- accepted payments column -->
                         <div class="col-6">
-                            <p class="lead">Payment Methods:</p>
+                            <p class="lead">Fully Paid</p>
                             <label>CASH</label>
                             @*<p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
                             Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles, weebly ning heekya handango imeem
@@ -97,16 +103,16 @@
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>@Html.Raw(grandTotal + " ETB")</td>
+                                        <th style="width:50%">SUBTOTAL:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandTotal) + " ETB")</td>
                                     </tr>
                                     <tr>
-                                        <th>Tax (15%)</th>
+                                        <th>TAX (15%)</th>
                                         <td>0.0</td>
                                     </tr>
                                     <tr>
-                                        <th>Grand Total:</th>
-                                        <td>@Html.Raw(grandTotal + " ETB")</td>
+                                        <th>GRAND TOTAL:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandTotal) + " ETB")</td>
                                     </tr>
                                 </table>
                             </div>
@@ -117,10 +123,10 @@
                     <!-- this row will not appear when printing -->
                     <div class="row no-print">
                         <div class="col-12">
-                            <a asp-action="PrintReport" rel="noopener" target="_blank" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
+                            <a href="#" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
 
                             <a asp-action="Index" class="btn btn-sm btn-outline-dark float-right" style="margin-right: 5px;">
-                                <i class="fas fa-list"></i> Back to List
+                                <i class="fas fa-list"></i> Back to Filter
                             </a>
                         </div>
                     </div>

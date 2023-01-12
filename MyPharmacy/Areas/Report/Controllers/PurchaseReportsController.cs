@@ -17,45 +17,52 @@ namespace MyPharmacy.Areas.Report.Controllers
             _context = context;
         }
 
+        // GET: Report/PurchaseReports
+        public async Task<IActionResult> Index()
+        {
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName");
+            ViewData["Title"] = "Report Filter";
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PreviewReport(string? FromDate, string? ToDate, string? EmployeeId)
         {
-            var queryResult = from invD in _context.InvoiceDetails
-                              join inv in _context.Invoices.Include(a => a.InvoiceType).Include(a => a.Customer) on invD.InvoiceId equals inv.Id
-                              join e in _context.Employees on inv.EmployeeId equals e.Id
-                              join pb in _context.ProductBatches.Include(pb => pb.Product) on invD.ProductBatchId equals pb.Id
+            var queryResult = from pO in _context.PurchaseOrders.Include(p => p.Supplier)
+                              join pb in _context.ProductBatches.Include(p => p.Product) on pO.Id equals pb.PurchaseOrderId
+                              join pc in _context.ProductCategories on pb.Product.ProductCategoryId equals pc.Id
+                              join e in _context.Employees on pO.RequestedBy equals e.Id
                               select new
                               {
-                                  inv.InvoiceNo,
-                                  InvoiceTypeName = inv.InvoiceType.Name,
-                                  ProductName = pb.Product.Name + "",
+                                  pO.SupplierInvoiceNo,
+                                  pO.RequiredAmount,
+                                  pO.ApprovedAmount,
+                                  pO.ApprovedAt,
+                                  pO.ApprovedBy,
+                                  EmployeeFullName = e.FirstName + " " + e.MiddleName + " " + e.LastName,
+                                  ProductName = pb.Product.Name,
                                   ProductCode = pb.Product.Code,
-                                  CustomerTINNo = inv.Customer.TINNo,
-                                  CustomerName = inv.Customer.Name + "",
                                   ProductBatchNo = pb.BatchNo,
-                                  inv.InvoiceDate,
-                                  EmployeeFullName = e.FirstName + e.MiddleName + e.LastName,
-                                  e.Gender,
-                                  ItemQuantity = invD.Quantity,
-                                  ItemSellingPrice = invD.SellingPrice,
-                                  InvoiceRowTotal = invD.RowTotal
+                                  ProductTypeName = pc.Name,
+                                  ProductIsTaxable = pb.IsTaxable,
+                                  ItemPurchasingPrice = pb.PurchasingPrice,
+                                  ItemSellingPrice = pb.SellingPrice,
+                                  SupplierName = pO.Supplier.Name,
+                                  SupplierPhoneNo = pO.Supplier.SupplierPhone,
+                                  SupplierTINNo = pO.Supplier.TINNo,
+                                  ItemQuantity = pO.ApprovedAmount,
+                                  PurchaseRowTotal = pO.ApprovedAmount * pb.PurchasingPrice,
+                                  PurchaseTAX = 0,
+                                  purchaseRowTotalTAX = (pO.ApprovedAmount * pb.PurchasingPrice) + ((pO.ApprovedAmount * pb.PurchasingPrice) * 0),
                               };
 
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
             HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName", EmployeeId);
-            ViewData["Title"] = "Sales Report";
+            ViewData["Title"] = "Purchase Report";
             ViewData["queryResult"] = queryResult;
-
             return View();
-        }
-
-        // GET: Report/PurchaseReports
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.PurchaseReports.ToListAsync());
         }
 
         // GET: Report/PurchaseReports/Details/5

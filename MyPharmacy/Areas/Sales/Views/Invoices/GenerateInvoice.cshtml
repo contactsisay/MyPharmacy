@@ -101,11 +101,7 @@
                         <div class="col-6">
                             <p class="lead">Payment Methods:</p>
                             <label>CASH</label>
-                            <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
-                                Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles, weebly ning heekya handango imeem
-                                plugg
-                                dopplr jibjab, movity jajah plickers sifteo edmodo ifttt zimbra.
-                            </p>
+                            <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">&nbsp;</p>
                         </div>
                         <!-- /.col -->
                         <div class="col-6">
@@ -134,7 +130,7 @@
                     <!-- this row will not appear when printing -->
                     <div class="row no-print">
                         <div class="col-12">
-                            <a asp-action="PrintInvoice" rel="noopener" target="_blank" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Invoice</a>
+                            <a href="#" rel="noopener" target="_blank" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Invoice</a>
 
                              <a asp-action="Index" class="btn btn-sm btn-outline-dark float-right" style="margin-right: 5px;">
                                 <i class="fas fa-list"></i> Back to List
@@ -153,10 +149,8 @@
 <!-- /.content -->
 
 <script>
- window.addEventListener("load", window.print());
-    
+    //window.addEventListener("load", window.print());
     function onPrint(){
         window.addEventListener("load", window.print());
     }
-
 </script>

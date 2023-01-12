@@ -3,12 +3,15 @@
 @using BALibrary.Purchase;
 @inject MyPharmacy.Data.ApplicationDbContext _context;
 @{
-    ViewData["Title"] = "Sales Report";
+    ViewData["Title"] = "Profit Loss Report";
     Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
 
     var queryResult = ViewBag.queryResult;
     int counter = 0;
-    decimal grandTotal = 0;
+    decimal grandIncomeTotal = 0;
+    decimal grandExpenseTotal = 0;
+    decimal grandProfitTotal = 0;
+    decimal grandLossTotal = 0;
 }
 
 <section class="content">
@@ -32,7 +35,7 @@
                         <div class="col-12">
                             <h4>
                                 <i class="fas fa-globe"></i> MyPharmacy
-                                <small class="float-right">Date: <b>@Html.Raw(DateTime.Now)</b></small>
+                                <small class="float-right">Date: <b>@Html.Raw(DateTime.Now.ToShortTimeString())</b></small>
                             </h4>
                         </div>
                         <!-- /.col -->
@@ -48,27 +51,40 @@
                                         <th>PRODUCT NAME</th>
                                         <th>PRODUCT BATCH NO</th>
                                         <th>PRODUCT TYPE Type</th>
-                                        <th>PRICE (ETB)</th>
-                                        <th>QUANTITY</th>
-                                        <th>TOTAL BEFORE TAX</th>
-                                        <th>TAX (15%)</th>
-                                        <th>ROW TOTAL</th>
+                                        <th>PURCHASE QUANTITY</th>
+                                        <th>SOLD QUANTITY</th>
+
+                                        <th>PURCHASE PRICE (ETB)</th>
+                                        <th>TOTAL EXPENSE</th>
+
+                                        <th>SELLING PRICE (ETB)</th>
+                                        <th>TOTAL INCOME</th>
+                                        
+                                        <th>PROFIT OR LOSS?</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var idd in queryResult)
                                     {
-                                        grandTotal += idd.InvoiceRowTotal;
+                                        grandIncomeTotal += idd.TotalIncome;
+                                        grandExpenseTotal += idd.TotalExpense;
+                                        if (Convert.ToDecimal(idd.ProfitOrLoss) > 0) {
+                                            grandProfitTotal += idd.ProfitOrLoss;
+                                        } else {
+                                            grandLossTotal += idd.ProfitOrLoss;
+                                        }
                                         <tr>
                                             <td>@Html.Raw(++counter)</td>
                                             <td>@Html.Raw(idd.ProductName)</td>
                                             <td>@Html.Raw(idd.ProductBatchNo)</td>
                                             <td>@Html.Raw(idd.ProductTypeName)</td>
+                                            <td>@Html.Raw(idd.InitialQuantity)</td>
+                                            <td>@Html.Raw(idd.ItemPurchasingPrice)</td>
+                                            <td>@Html.Raw(idd.TotalExpense)</td>
+                                            <td>@Html.Raw(idd.SoldQuantity)</td>
                                             <td>@Html.Raw(idd.ItemSellingPrice)</td>
-                                            <td>@Html.Raw(idd.ItemQuantity)</td>
-                                            <td>@Html.Raw(idd.ItemQuantity * idd.ItemSellingPrice)</td>
-                                            <td>@Html.Raw("0%")</td>
-                                            <td>@Html.Raw(idd.InvoiceRowTotal)</td>
+                                            <td>@Html.Raw(idd.TotalIncome)</td>
+                                            <td>@Html.Raw(Convert.ToDecimal(idd.ProfitOrLoss) > 0 ? "<label class='badge badge-success'>PROFIT</label>" : "<label class='badge badge-danger'>LOSS</label>")</td>
                                         </tr>
                                     }
 
@@ -92,21 +108,25 @@
                         </div>
                         <!-- /.col -->
                         <div class="col-6">
-                            <p class="lead">Amount Due @Html.Raw(DateTime.Now)</p>
+                            <p class="lead">Report Date @Html.Raw(DateTime.Now.ToShortTimeString())</p>
 
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
-                                        <th style="width:50%">Subtotal:</th>
-                                        <td>@Html.Raw(grandTotal + " ETB")</td>
+                                        <th style="width:50%;text-align:right;">GRAND INCOME:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandIncomeTotal) + " ETB")</td>
                                     </tr>
                                     <tr>
-                                        <th>Tax (15%)</th>
-                                        <td>0.0</td>
+                                        <th style="width:50%;text-align:right;">GRAND EXPENSE:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandExpenseTotal) + " ETB")</td>
                                     </tr>
                                     <tr>
-                                        <th>Grand Total:</th>
-                                        <td>@Html.Raw(grandTotal + " ETB")</td>
+                                        <th style="width:50%;text-align:right;">GRAND PROFIT:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandProfitTotal) + " ETB")</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:50%;text-align:right;">GRAND LOSS:</th>
+                                        <td>@Html.Raw(Convert.ToDecimal(grandLossTotal) + " ETB")</td>
                                     </tr>
                                 </table>
                             </div>
@@ -117,10 +137,10 @@
                     <!-- this row will not appear when printing -->
                     <div class="row no-print">
                         <div class="col-12">
-                            <a asp-action="PrintReport" rel="noopener" target="_blank" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
+                            <a href="#" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
 
                             <a asp-action="Index" class="btn btn-sm btn-outline-dark float-right" style="margin-right: 5px;">
-                                <i class="fas fa-list"></i> Back to List
+                                <i class="fas fa-list"></i> Back to Filter
                             </a>
                         </div>
                     </div>

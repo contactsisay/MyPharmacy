@@ -3,7 +3,7 @@
 @using BALibrary.Purchase;
 @inject MyPharmacy.Data.ApplicationDbContext _context;
 @{
-    ViewData["Title"] = "Sales Report";
+    ViewData["Title"] = "Stock Report";
     Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
 
     var queryResult = ViewBag.queryResult;
@@ -48,27 +48,29 @@
                                         <th>PRODUCT NAME</th>
                                         <th>PRODUCT BATCH NO</th>
                                         <th>PRODUCT TYPE Type</th>
-                                        <th>PRICE (ETB)</th>
-                                        <th>QUANTITY</th>
-                                        <th>TOTAL BEFORE TAX</th>
-                                        <th>TAX (15%)</th>
-                                        <th>ROW TOTAL</th>
+                                        <th>INITIAL QTY</th>
+                                        <th>SOLD QTY</th>
+                                        <th>CURRENT QTY</th>
+                                        <th>WHEN EXPIRE?</th>
+                                        <th>MIN ORDER LEVEL</th>
+                                        <th>UNDER STOCK?</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var idd in queryResult)
                                     {
-                                        grandTotal += idd.InvoiceRowTotal;
+                                        //grandTotal += idd.InvoiceRowTotal;
                                         <tr>
                                             <td>@Html.Raw(++counter)</td>
                                             <td>@Html.Raw(idd.ProductName)</td>
                                             <td>@Html.Raw(idd.ProductBatchNo)</td>
                                             <td>@Html.Raw(idd.ProductTypeName)</td>
-                                            <td>@Html.Raw(idd.ItemSellingPrice)</td>
-                                            <td>@Html.Raw(idd.ItemQuantity)</td>
-                                            <td>@Html.Raw(idd.ItemQuantity * idd.ItemSellingPrice)</td>
-                                            <td>@Html.Raw("0%")</td>
-                                            <td>@Html.Raw(idd.InvoiceRowTotal)</td>
+                                            <td>@Html.Raw(idd.InitialQuantity)</td>
+                                            <td>@Html.Raw(idd.SoldQuantity)</td>
+                                            <td>@Html.Raw(idd.StockBalance)</td>
+                                            <td>@Html.Raw(Convert.ToDateTime(idd.ExpirationDate).ToShortDateString())</td>
+                                            <td>@Html.Raw(idd.MinimumOrderLevel)</td>
+                                            <td>@Html.Raw((idd.UnderStock == "YES" ? "<label class='bagde badge-danger'>YES</label>" : "<label class='bagde badge-success'>NO</label>"))</td>
                                         </tr>
                                     }
 
@@ -94,7 +96,7 @@
                         <div class="col-6">
                             <p class="lead">Amount Due @Html.Raw(DateTime.Now)</p>
 
-                            <div class="table-responsive">
+                            @*<div class="table-responsive">
                                 <table class="table">
                                     <tr>
                                         <th style="width:50%">Subtotal:</th>
@@ -109,7 +111,7 @@
                                         <td>@Html.Raw(grandTotal + " ETB")</td>
                                     </tr>
                                 </table>
-                            </div>
+                            </div>*@
                         </div>
                         <!-- /.col -->
                     </div>
@@ -117,10 +119,10 @@
                     <!-- this row will not appear when printing -->
                     <div class="row no-print">
                         <div class="col-12">
-                            <a asp-action="PrintReport" rel="noopener" target="_blank" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
+                            <a href="#" onclick="onPrint()" class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i> Print Report</a>
 
                             <a asp-action="Index" class="btn btn-sm btn-outline-dark float-right" style="margin-right: 5px;">
-                                <i class="fas fa-list"></i> Back to List
+                                <i class="fas fa-list"></i> Back to Filter
                             </a>
                         </div>
                     </div>

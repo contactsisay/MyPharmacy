@@ -62,7 +62,10 @@ namespace MyPharmacy.Areas.Sales.Controllers
             foreach (ProductBatch pb in productBatches)
             {
                 List<Stock> stocks = _context.Stocks.Where(s => s.ProductBatchId == pb.Id).OrderByDescending(pb => pb.Id).ToList();
-                pbOptions += pb.Id + "#" + (pb.Product.Name + "(" + pb.BatchNo + ")") + "#" + pb.SellingPrice + "#" + (stocks.Count > 0 ? stocks[0].CurrentQuantity : 0) + "#" + (pb.IsTaxable ? 1 : 0) + ",";//id#(product_name+batch_no)#selling_price#stock_balance#is_taxable
+                bool is_selected = false;
+                int quantity = 0;
+                int rowIndex = 0;
+                pbOptions += pb.Id + "#" + (pb.Product.Name + "(" + pb.BatchNo + ")") + "#" + pb.SellingPrice + "#" + (stocks.Count > 0 ? stocks[0].CurrentQuantity : 0) + "#" + (pb.IsTaxable ? 1 : 0) + "#" + is_selected.ToString() + "#" + quantity + "#" + rowIndex + ",";//id#(product_name+batch_no)#selling_price#stock_balance#is_taxable#quantity#row_index
             }
 
             string nextInvoiceNo = string.Empty;
@@ -70,17 +73,6 @@ namespace MyPharmacy.Areas.Sales.Controllers
             nextInvoiceNo = (invoices.Count > 0 ? (Convert.ToInt32(invoices[0].InvoiceNo) + 1).ToString() : "1");
             ViewData["NextInvoiceNo"] = nextInvoiceNo;
             ViewData["pbOptions"] = pbOptions;
-            return View();
-        }
-
-        public async Task<IActionResult> PrintInvoice(int id)
-        {
-            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
-            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
-            Invoice invoice = _context.Invoices.Find(id);
-            List<InvoiceDetail> invoiceDetails = _context.InvoiceDetails.Where(idd => idd.InvoiceId == id).ToList();
-            ViewData["Invoice"] = invoice;
-            ViewData["InvoiceDetails"] = invoiceDetails;
             return View();
         }
 
@@ -106,6 +98,10 @@ namespace MyPharmacy.Areas.Sales.Controllers
             if (HttpContext.Session.GetString(SessionVariable.SessionKeyUserId) != null)
                 currentUserId = Convert.ToInt32(HttpContext.Session.GetString(SessionVariable.SessionKeyUserId));
 
+            string nextInvoiceNo = string.Empty;
+            List<Invoice> invoices = _context.Invoices.OrderByDescending(inv => inv.Id).ToList();
+            nextInvoiceNo = (invoices.Count > 0 ? (Convert.ToInt32(invoices[0].InvoiceNo) + 1).ToString() : "1");
+            invoice.InvoiceNo = nextInvoiceNo;
             invoice.InvoiceTotal = 0;
             invoice.InvoiceDate = DateTime.Now;
             invoice.EmployeeId = currentUserId;
@@ -113,99 +109,140 @@ namespace MyPharmacy.Areas.Sales.Controllers
 
             if (ModelState.IsValid)
             {
-                //checking all products balance before saving
-                bool passed = true;
-                Stock stock = new Stock();
-                for (int i = 1; i <= formCollection.Count; i++)
+                if (formCollection.Count > 0)
                 {
-                    if (!string.IsNullOrEmpty(formCollection["productbatchid_" + i].ToString()) && Convert.ToInt32(formCollection["productbatchid_" + i].ToString()) > 0)
+                    //if first element is null
+                    if (!string.IsNullOrEmpty(formCollection["productbatchid_1"].ToString()))
                     {
-                        int productBatchId = Convert.ToInt32(formCollection["productbatchid_" + i].ToString());
-                        int requestedQuantity = Convert.ToInt32(formCollection["quantity_" + i].ToString());
-                        List<Stock> stocks = _context.Stocks.Include(s => s.ProductBatch).Where(s => s.ProductBatchId == productBatchId).OrderByDescending(s => s.Id).ToList();
-                        if (stocks.Count > 0)
-                        {
-                            if (stocks[0].CurrentQuantity < requestedQuantity)
-                            {
-                                stock = stocks[0];
-                                passed = false;
-                                break;
-                            }
-                        }
-                    }
-                }
+                        List<string> invoiceItems = new List<string>();
 
-                //if all products current stock quantity is not less than requested?
-                if (passed)
-                {
-                    //Saving Invoice
-                    int pass = 0;
-                    _context.Add(invoice);
-                    pass = await _context.SaveChangesAsync();
-
-                    #region Saving Invoice Details
-                    //Saving Invoice Details
-                    if (pass > 0)
-                    {
+                        //checking all products balance before saving
+                        bool passed = true;
+                        Stock stock = new Stock();
                         for (int i = 1; i <= formCollection.Count; i++)
                         {
                             if (!string.IsNullOrEmpty(formCollection["productbatchid_" + i].ToString()) && Convert.ToInt32(formCollection["productbatchid_" + i].ToString()) > 0)
                             {
                                 int productBatchId = Convert.ToInt32(formCollection["productbatchid_" + i].ToString());
-                                ProductBatch productBatch = _context.ProductBatches.Find(productBatchId);
-                                if (productBatch != null)
+                                int requestedQuantity = Convert.ToInt32(formCollection["quantity_" + i].ToString());
+                                List<Stock> stocks = _context.Stocks.Include(s => s.ProductBatch).Where(s => s.ProductBatchId == productBatchId).OrderByDescending(s => s.Id).ToList();
+                                if (stocks.Count > 0)
                                 {
-                                    InvoiceDetail invoiceDetail = new InvoiceDetail();
-                                    invoiceDetail.InvoiceId = invoice.Id;
-                                    invoiceDetail.ProductBatchId = Convert.ToInt32(formCollection["productbatchid_" + i]);
-                                    invoiceDetail.Quantity = Convert.ToInt32(formCollection["quantity_" + i]);
-                                    invoiceDetail.SellingPrice = Convert.ToDecimal(formCollection["unitprice_" + i]);
-
-                                    decimal rowTotal = invoiceDetail.Quantity * invoiceDetail.SellingPrice;
-                                    if (productBatch.IsTaxable == true)
-                                        invoiceDetail.RowTotal = rowTotal + (rowTotal * Convert.ToDecimal(0.15)); //getting 15% tax
-                                    else
-                                        invoiceDetail.RowTotal = rowTotal;
-
-                                    invoiceDetail.Status = 1;
-
-                                    _context.InvoiceDetails.Add(invoiceDetail);
-                                    int pass2 = await _context.SaveChangesAsync();
-
-                                    //if saving invoice detail is successful, then deduct from stock
-                                    if (pass2 > 0)
+                                    if (stocks[0].CurrentQuantity < requestedQuantity)
                                     {
-                                        List<Stock> stocks = _context.Stocks.Where(s => s.ProductBatchId == invoiceDetail.ProductBatchId).OrderByDescending(s => s.Id).ToList();
-                                        if (stocks.Count > 0)
-                                        {
-                                            Stock s = stocks[0];
-                                            s.EmployeeId = currentUserId;
-                                            s.SoldQuantity = invoiceDetail.Quantity;
-                                            s.CurrentQuantity = s.CurrentQuantity - invoiceDetail.Quantity;
-                                            s.ActionTaken = 1;//sold
-                                            s.Description = "Sold by Invoice No: " + invoice.InvoiceNo;
-                                            s.Status = 1;
-
-                                            _context.Stocks.Update(s);
-                                            await _context.SaveChangesAsync();
-                                        }
+                                        stock = stocks[0];
+                                        passed = false;
+                                        break;
                                     }
                                 }
                             }
                         }
+
+                        //if all products current stock quantity is not less than requested?
+                        if (passed)
+                        {
+                            //Saving Invoice
+                            int pass = 0;
+                            invoice.Status = 1;
+                            _context.Add(invoice);
+                            pass = await _context.SaveChangesAsync();
+
+                            #region Saving Invoice Details
+                            //Saving Invoice Details
+                            if (pass > 0)
+                            {
+                                for (int i = 1; i <= formCollection.Count; i++)
+                                {
+                                    if (!string.IsNullOrEmpty(formCollection["productbatchid_" + i].ToString()) && Convert.ToInt32(formCollection["productbatchid_" + i].ToString()) > 0)
+                                    {
+                                        int productBatchId = Convert.ToInt32(formCollection["productbatchid_" + i].ToString());
+                                        ProductBatch productBatch = _context.ProductBatches.Find(productBatchId);
+                                        if (productBatch != null)
+                                        {
+                                            InvoiceDetail invoiceDetail = new InvoiceDetail();
+                                            invoiceDetail.InvoiceId = invoice.Id;
+                                            invoiceDetail.ProductBatchId = Convert.ToInt32(formCollection["productbatchid_" + i]);
+                                            invoiceDetail.Quantity = Convert.ToInt32(formCollection["quantity_" + i]);
+                                            invoiceDetail.SellingPrice = Convert.ToDecimal(formCollection["unitprice_" + i]);
+
+                                            decimal rowTotal = invoiceDetail.Quantity * invoiceDetail.SellingPrice;
+                                            if (productBatch.IsTaxable == true)
+                                                invoiceDetail.RowTotal = rowTotal + (rowTotal * Convert.ToDecimal(0.15)); //getting 15% tax
+                                            else
+                                                invoiceDetail.RowTotal = rowTotal;
+
+                                            invoiceDetail.Status = 1;
+
+                                            _context.InvoiceDetails.Add(invoiceDetail);
+                                            int pass2 = await _context.SaveChangesAsync();
+
+                                            //if saving invoice detail is successful, then deduct from stock
+                                            if (pass2 > 0)
+                                            {
+                                                List<Stock> stocks = _context.Stocks.Where(s => s.ProductBatchId == invoiceDetail.ProductBatchId).OrderByDescending(s => s.Id).ToList();
+                                                if (stocks.Count > 0)
+                                                {
+                                                    Stock s = stocks[0];
+                                                    s.EmployeeId = currentUserId;
+                                                    s.SoldQuantity = invoiceDetail.Quantity;
+                                                    s.CurrentQuantity = s.CurrentQuantity - invoiceDetail.Quantity;
+                                                    s.ActionTaken = 1;//sold
+                                                    s.Description = "Sold by Invoice No: " + invoice.InvoiceNo;
+                                                    s.Status = 1;
+
+                                                    _context.Stocks.Update(s);
+                                                    await _context.SaveChangesAsync();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            #endregion
+
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
+                            return RedirectToAction("GenerateInvoice", new { id = invoice.Id });
+                        }
+                        else
+                        {
+                            HttpContext.Session.Remove(SessionVariable.SessionKeyMessageType);
+                            HttpContext.Session.Remove(SessionVariable.SessionKeyMessage);
+                            ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name", invoice.CustomerId);
+                            ViewData["InvoiceTypeId"] = new SelectList(_context.InvoiceTypes, "Id", "Name", invoice.InvoiceTypeId);
+
+                            var productBatches = _context.ProductBatches.Include(pb => pb.Product);
+                            List<string> pbOptions = new List<string>();
+
+                            int quantity = 0;
+                            int rowIndex = 0;
+                            foreach (ProductBatch pb in productBatches)
+                            {
+                                List<Stock> stocks = _context.Stocks.Where(s => s.ProductBatchId == pb.Id).OrderByDescending(pb => pb.Id).ToList();
+                                bool is_selected = false;
+                                for (int i = 1; i <= formCollection.Count; i++)
+                                {
+                                    if (!string.IsNullOrEmpty(formCollection["productbatchid_" + i].ToString()) && Convert.ToInt32(formCollection["productbatchid_" + i].ToString()) > 0)
+                                    {
+                                        is_selected = true;
+                                        quantity = Convert.ToInt32(formCollection["quantity_" + i].ToString());
+                                        rowIndex = i;
+                                        break;
+                                    }
+                                }
+
+                                pbOptions.Add(pb.Id + "#" + (pb.Product.Name + "(" + pb.BatchNo + ")") + "#" + pb.SellingPrice + "#" + (stocks.Count > 0 ? stocks[0].CurrentQuantity : 0) + "#" + (pb.IsTaxable ? 1 : 0) + "#" + is_selected.ToString() + "#" + quantity + "#" + rowIndex + ",");//id#(product_name+batch_no)#selling_price#stock_balance#is_taxable#is_selected#quantity#row_index
+                            }
+
+                            ViewData["NextInvoiceNo"] = nextInvoiceNo;
+                            ViewData["pbOptions"] = pbOptions;
+                            ViewData["InvoiceItems"] = pbOptions;
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
+                            HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Product with: " + stock.ProductBatch.BatchNo + " Batch No is out of Stock!");
+                            return View(nameof(Create));
+                        }
                     }
-
-                    #endregion
-
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "success");
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " Saved Successfully!");
-                    return RedirectToAction("GenerateInvoice", new { id = invoice.Id });
-                }
-                else
-                {
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
-                    HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, "Product with: " + stock.ProductBatch.BatchNo + " Batch No is out of Stock!");
-                    return RedirectToAction(nameof(Index));
                 }
             }
 
@@ -421,6 +458,7 @@ namespace MyPharmacy.Areas.Sales.Controllers
                 HttpContext.Session.SetString(SessionVariable.SessionKeyMessageType, "error");
                 HttpContext.Session.SetString(SessionVariable.SessionKeyMessage, this.ControllerContext.RouteData.Values["controller"].ToString().ToUpper() + " NOT Deleted!");
             }
+
             return RedirectToAction(nameof(Index));
         }
 

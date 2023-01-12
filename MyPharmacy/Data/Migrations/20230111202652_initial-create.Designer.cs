@@ -12,7 +12,7 @@ using MyPharmacy.Data;
 namespace MyPharmacy.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230110033104_initial-create")]
+    [Migration("20230111202652_initial-create")]
     partial class initialcreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -930,6 +930,9 @@ namespace MyPharmacy.Data.Migrations
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SupplierInvoiceNo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
