@@ -75,6 +75,15 @@
                         <p>Product Batches</p>
                     </a>
                 </li>}
+                @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "Packages", "Index"))
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Packages" asp-action="Index" class="nav-link">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Packages</p>
+                        </a>
+                    </li>
+                }
                 @if (Common.isAuthorized(Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetString(SessionVariable.SessionKeyUserRoleId)), Common.GetModuleText(Common.ModuleName.INVENTORY), "ManualCounts", "Index"))
                 {
                     <li class="nav-item">

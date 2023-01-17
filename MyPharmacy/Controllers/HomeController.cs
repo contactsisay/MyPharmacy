@@ -1,4 +1,5 @@
-﻿using BALibrary.HR;
+﻿using BALibrary.Admin;
+using BALibrary.HR;
 using Microsoft.AspNetCore.Mvc;
 using MyPharmacy.Data;
 using MyPharmacy.Models;

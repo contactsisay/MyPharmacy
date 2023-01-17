@@ -23,6 +23,9 @@ namespace BALibrary.Sales
         [Required]
         [Display(Name = "Invoice Date")]
         public DateTime InvoiceDate { get; set; }
+        [Display(Name = "Package")]
+        [ScaffoldColumn(false)]
+        public int? PackageId { get; set; }
 
         [Required]
         [Display(Name = "Created By")]

@@ -51,6 +51,8 @@ namespace MyPharmacy.Data
         public DbSet<BALibrary.Inventory.ProductCategory> ProductCategories { get; set; }
         public DbSet<BALibrary.Inventory.Stock> Stocks { get; set; }
         public DbSet<BALibrary.Inventory.Uom> Uoms { get; set; }
+        public DbSet<BALibrary.Inventory.Package> Packages { get; set; }
+        public DbSet<BALibrary.Inventory.PackageItem> PackageItems { get; set; }
 
         public DbSet<BALibrary.Purchase.Supplier> Suppliers { get; set; }
         public DbSet<BALibrary.Purchase.PurchaseOrder> PurchaseOrders { get; set; }

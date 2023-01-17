@@ -148,6 +148,25 @@ namespace MyPharmacy.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Packages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    IsPercentage = table.Column<bool>(type: "bit", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CalculatedPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalItems = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Packages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductCategories",
                 columns: table => new
                 {
@@ -562,6 +581,7 @@ namespace MyPharmacy.Data.Migrations
                     InvoiceNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     InvoiceTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     InvoiceDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PackageId = table.Column<int>(type: "int", nullable: true),
                     EmployeeId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
@@ -969,6 +989,35 @@ namespace MyPharmacy.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PackageItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PackageId = table.Column<int>(type: "int", nullable: false),
+                    ProductBatchId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PackageItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PackageItems_Packages_PackageId",
+                        column: x => x.PackageId,
+                        principalTable: "Packages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PackageItems_ProductBatches_ProductBatchId",
+                        column: x => x.ProductBatchId,
+                        principalTable: "ProductBatches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Stocks",
                 columns: table => new
                 {
@@ -1140,6 +1189,16 @@ namespace MyPharmacy.Data.Migrations
                 column: "ProductBatchId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PackageItems_PackageId",
+                table: "PackageItems",
+                column: "PackageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PackageItems_ProductBatchId",
+                table: "PackageItems",
+                column: "ProductBatchId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductBatches_ProductId",
                 table: "ProductBatches",
                 column: "ProductId");
@@ -1237,6 +1296,9 @@ namespace MyPharmacy.Data.Migrations
                 name: "ModuleTables");
 
             migrationBuilder.DropTable(
+                name: "PackageItems");
+
+            migrationBuilder.DropTable(
                 name: "ProfitLossReports");
 
             migrationBuilder.DropTable(
@@ -1280,6 +1342,9 @@ namespace MyPharmacy.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "InvoiceTypes");
+
+            migrationBuilder.DropTable(
+                name: "Packages");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");
